@@ -54,7 +54,6 @@ function login(state) {
     client_id,
     tenant_id,
     grant_type,
-    api,
   } = state.configuration;
 
   const data = {
@@ -68,14 +67,14 @@ function login(state) {
 
   const body = JSON.stringify({
     user: {
-      user_name: user,
+      user_name: userName,
       password,
     },
   });
 
   const params = {
     method: 'POST',
-    url: `${url}/api/v2/tokens`,
+    url: `${host}/api/v2/tokens`,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -102,10 +101,8 @@ function login(state) {
  * @public
  * @example
  * execute(
- *   assignManager(params)
+ *   assignManager()
  * )(state)
- * @constructor
- * @param {object} params - data to make the fetch
  * @returns {Operation}
  */
 export function assignManager() {
@@ -166,6 +163,15 @@ export function assignManager() {
   };
 }
 
+/**
+ * Assign an AU
+ * @public
+ * @example
+ * execute(
+ *   assignAU()
+ * )(state)
+ * @returns {Operation}
+ */
 export function assignAU() {
   return state => {
     return new Promise((resolve, reject) => {
@@ -360,9 +366,6 @@ function assignGroup() {
     });
   };
 }
-
-// Note that we expose the entire axios package to the user here.
-exports.axios = axios;
 
 // What functions do you want from the common adaptor?
 export {
