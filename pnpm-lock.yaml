@@ -382,6 +382,12 @@ importers:
       qs:
         specifier: ^6.11.0
         version: 6.11.0
+      ssh2-sftp-client:
+        specifier: 9.0.4
+        version: 9.0.4
+      xlstream:
+        specifier: ^2.5.5
+        version: 2.5.5
     devDependencies:
       assertion-error:
         specifier: 2.0.0
@@ -15377,7 +15383,7 @@ packages:
       methods: 1.1.2
       mime: 1.6.0
       qs: 6.11.0
-      readable-stream: 2.3.7
+      readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color
     dev: false
