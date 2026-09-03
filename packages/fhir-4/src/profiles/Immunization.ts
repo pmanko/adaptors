@@ -3,48 +3,48 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Immunization_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
     contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
-    vaccineCode?: string[] | FHIR.CodeableConcept;
-    patient?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    occurrence?: string;
-    recorded?: string;
-    primarySource?: boolean;
-    reportOrigin?: string[] | FHIR.CodeableConcept;
-    location?: string | FHIR.Reference;
-    manufacturer?: string | FHIR.Reference;
-    lotNumber?: string;
-    expirationDate?: string;
-    site?: string[] | FHIR.CodeableConcept;
-    route?: string[] | FHIR.CodeableConcept;
     doseQuantity?: FHIR.Quantity;
-    performer?: FHIR.BackboneElement[];
+    education?: FHIR.BackboneElement[];
+    encounter?: string | FHIR.Reference;
+    expirationDate?: string;
+    extension?: FHIR.Extension[];
+    fundingSource?: string[] | FHIR.CodeableConcept;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    isSubpotent?: boolean;
+    language?: string;
+    location?: string | FHIR.Reference;
+    lotNumber?: string;
+    manufacturer?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
+    occurrence?: string;
+    patient?: string | FHIR.Reference;
+    performer?: FHIR.BackboneElement[];
+    primarySource?: boolean;
+    programEligibility?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    protocolApplied?: FHIR.BackboneElement[];
+    reaction?: FHIR.BackboneElement[];
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    isSubpotent?: boolean;
+    recorded?: string;
+    reportOrigin?: string[] | FHIR.CodeableConcept;
+    route?: string[] | FHIR.CodeableConcept;
+    site?: string[] | FHIR.CodeableConcept;
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
     subpotentReason?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    education?: FHIR.BackboneElement[];
-    programEligibility?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    fundingSource?: string[] | FHIR.CodeableConcept;
-    reaction?: FHIR.BackboneElement[];
-    protocolApplied?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    vaccineCode?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -57,6 +57,23 @@ export default function(props: Partial<Immunization_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/immunization-status-reason",
+            props.statusReason
+        ));
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.vaccineCode)) {
+        resource.vaccineCode = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/vaccine-code", props.vaccineCode)
+        );
+
+        dt.ensureConceptText(resource.vaccineCode);
     }
 
     if (!_.isNil(props.patient)) {
@@ -72,12 +89,36 @@ export default function(props: Partial<Immunization_Props>) {
         dt.composite(resource, "occurrence", props.occurrence);
     }
 
+    if (!_.isNil(props.reportOrigin)) {
+        resource.reportOrigin = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-origin", props.reportOrigin)
+        );
+
+        dt.ensureConceptText(resource.reportOrigin);
+    }
+
     if (!_.isNil(props.location)) {
         resource.location = dt.reference(props.location);
     }
 
     if (!_.isNil(props.manufacturer)) {
         resource.manufacturer = dt.reference(props.manufacturer);
+    }
+
+    if (!_.isNil(props.site)) {
+        resource.site = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-site", props.site)
+        );
+
+        dt.ensureConceptText(resource.site);
+    }
+
+    if (!_.isNil(props.route)) {
+        resource.route = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-route", props.route)
+        );
+
+        dt.ensureConceptText(resource.route);
     }
 
     if (!_.isNil(props.performer)) {
@@ -94,9 +135,29 @@ export default function(props: Partial<Immunization_Props>) {
         }
     }
 
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
+    }
+
     if (!_.isNil(props.reasonReference)) {
         if (!Array.isArray(props.reasonReference)) { props.reasonReference = [props.reasonReference]; }
         resource.reasonReference = dt.reference(props.reasonReference);
+    }
+
+    if (!_.isNil(props.subpotentReason)) {
+        if (!Array.isArray(props.subpotentReason)) { props.subpotentReason = [props.subpotentReason]; }
+
+        resource.subpotentReason = props.subpotentReason.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-subpotent-reason", x)
+        ));
+
+        dt.ensureConceptText(resource.subpotentReason);
     }
 
     if (!_.isNil(props.education)) {
@@ -111,6 +172,25 @@ export default function(props: Partial<Immunization_Props>) {
 
             resource.education.push(_education);
         }
+    }
+
+    if (!_.isNil(props.programEligibility)) {
+        if (!Array.isArray(props.programEligibility)) { props.programEligibility = [props.programEligibility]; }
+
+        resource.programEligibility = props.programEligibility.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/immunization-program-eligibility", x)
+        ));
+
+        dt.ensureConceptText(resource.programEligibility);
+    }
+
+    if (!_.isNil(props.fundingSource)) {
+        resource.fundingSource = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/immunization-funding-source",
+            props.fundingSource
+        ));
+
+        dt.ensureConceptText(resource.fundingSource);
     }
 
     if (!_.isNil(props.reaction)) {

@@ -3,37 +3,37 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Location_Props = {
+    address?: FHIR.Address;
+    alias?: string[];
+    availabilityExceptions?: string;
+    contained?: any[];
+    description?: string;
+    endpoint?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
+    hoursOfOperation?: FHIR.BackboneElement[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    operationalStatus?: FHIR.Coding;
-    name?: string;
-    alias?: string[];
-    description?: string;
+    managingOrganization?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
     mode?: string;
-    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    telecom?: FHIR.ContactPoint[];
-    address?: FHIR.Address;
+    modifierExtension?: FHIR.Extension[];
+    name?: string;
+    operationalStatus?: FHIR.Coding;
+    partOf?: string | FHIR.Reference;
     physicalType?: string[] | FHIR.CodeableConcept;
     position?: FHIR.BackboneElement;
-    managingOrganization?: string | FHIR.Reference;
-    partOf?: string | FHIR.Reference;
-    hoursOfOperation?: FHIR.BackboneElement[];
-    availabilityExceptions?: string;
-    endpoint?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    telecom?: FHIR.ContactPoint[];
+    text?: FHIR.Narrative;
+    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     [key: string]: any;
 };
 
@@ -48,11 +48,38 @@ export default function(props: Partial<Location_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.operationalStatus)) {
+        let src = props.operationalStatus;
+        if (typeof src === 'string') {
+          src = dt.lookupValue('http://terminology.hl7.org/ValueSet/v2-0116', src);
+         }
+        resource.operationalStatus = dt.coding(src);
+    }
+
+    if (!_.isNil(props.type)) {
+        if (!Array.isArray(props.type)) { props.type = [props.type]; }
+
+        resource.type = props.type.map((x) => dt.concept(dt.lookupValue(
+            "http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType",
+            x
+        )));
+
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.physicalType)) {
+        resource.physicalType = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/location-physical-type", props.physicalType)
+        );
+
+        dt.ensureConceptText(resource.physicalType);
+    }
+
     if (!_.isNil(props.position)) {
         let src = props.position;
 
         let _position = {
-            ...item
+            ...src
         };
 
         resource.position = _position;

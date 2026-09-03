@@ -593,6 +593,75 @@
         ]
       },
       "valid": true
+    },
+    {
+      "name": "get",
+      "params": [
+        "path",
+        "query"
+      ],
+      "docs": {
+        "description": "Get resources from Primero. Automatically paginates through all pages.",
+        "tags": [
+          {
+            "title": "public",
+            "description": null,
+            "type": null
+          },
+          {
+            "title": "function",
+            "description": null,
+            "name": null
+          },
+          {
+            "title": "example",
+            "description": "get('registry_records');",
+            "caption": "Fetch all registry records"
+          },
+          {
+            "title": "example",
+            "description": "get('registry_records', { per: 50 });",
+            "caption": "fetch all records in pages of 50 at a time"
+          },
+          {
+            "title": "example",
+            "description": "get('registry_records', { limit: 5000 });",
+            "caption": "Fetch at most 5000 records"
+          },
+          {
+            "title": "example",
+            "description": "get('registry_records/fc686dff-b1ee-4206-9be6-066dbf4e3a54');",
+            "caption": "Fetch a single registry record by ID"
+          },
+          {
+            "title": "param",
+            "description": "Path to a resource",
+            "type": {
+              "type": "NameExpression",
+              "name": "string"
+            },
+            "name": "path"
+          },
+          {
+            "title": "param",
+            "description": "Query parameters to append to the URL. Use `per` to control the page size. Use `limit` to cap the total number of records fetched.",
+            "type": {
+              "type": "NameExpression",
+              "name": "object"
+            },
+            "name": "query"
+          },
+          {
+            "title": "returns",
+            "description": null,
+            "type": {
+              "type": "NameExpression",
+              "name": "Operation"
+            }
+          }
+        ]
+      },
+      "valid": true
     }
   ],
   "exports": [],
@@ -647,7 +716,7 @@
         "operation"
       ],
       "docs": {
-        "description": "A custom operation that will only execute the function if the condition returns true",
+        "description": "Execute a function only when the condition returns true",
         "tags": [
           {
             "title": "public",
@@ -1120,6 +1189,55 @@
             "type": {
               "type": "NameExpression",
               "name": "DataSource"
+            }
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "log",
+      "params": [
+        "args"
+      ],
+      "docs": {
+        "description": "Outputs a message, like calling `console.log`. Use this at the top level of your job code, but not inside callbacks.",
+        "tags": [
+          {
+            "title": "public",
+            "description": null,
+            "type": null
+          },
+          {
+            "title": "function",
+            "description": null,
+            "name": null
+          },
+          {
+            "title": "example",
+            "description": "log('Patient List::', $.patients);",
+            "caption": "Log values from state"
+          },
+          {
+            "title": "example",
+            "description": "fn((state) => {\n  console.log(state.data);\n  return state;\n})",
+            "caption": "Use console.log inside a callback or fn block"
+          },
+          {
+            "title": "param",
+            "description": "A value or message to display in the logs",
+            "type": {
+              "type": "NameExpression",
+              "name": "any"
+            },
+            "name": "args"
+          },
+          {
+            "title": "returns",
+            "description": null,
+            "type": {
+              "type": "NameExpression",
+              "name": "Operation"
             }
           }
         ]

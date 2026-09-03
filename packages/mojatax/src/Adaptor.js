@@ -1,5 +1,5 @@
 import { expandReferences } from '@openfn/language-common/util';
-import * as util from './Utils';
+import * as util from './Utils.js';
 import { execute as commonExecute } from '@openfn/language-common';
 
 /**
@@ -45,7 +45,7 @@ export function execute(...operations) {
   return state => {
     return commonExecute(
       util.authorize,
-      ...operations
+      ...operations,
     )({
       ...initialState,
       ...state,
@@ -103,7 +103,7 @@ export function request(method, path, body, options = {}, callback = s => s) {
       {
         data: resolvedData,
         ...resolvedoptions,
-      }
+      },
     );
 
     return util.prepareNextState(state, response, callback);
@@ -111,15 +111,17 @@ export function request(method, path, body, options = {}, callback = s => s) {
 }
 
 export {
+  combine,
+  cursor,
   dataPath,
   dataValue,
   dateFns,
-  cursor,
   each,
   field,
   fields,
   fn,
   lastReferenceValue,
+  log,
   merge,
   sourceValue,
 } from '@openfn/language-common';

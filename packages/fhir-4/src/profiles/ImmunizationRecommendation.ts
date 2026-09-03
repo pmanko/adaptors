@@ -3,25 +3,25 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ImmunizationRecommendation_Props = {
+    authority?: string | FHIR.Reference;
+    contained?: any[];
+    date?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     patient?: string | FHIR.Reference;
-    date?: string;
-    authority?: string | FHIR.Reference;
     recommendation?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 

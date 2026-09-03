@@ -3,44 +3,44 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Observation_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     basedOn?: MaybeArray<string | FHIR.Reference>;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
+    bodySite?: string[] | FHIR.CodeableConcept;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    focus?: MaybeArray<string | FHIR.Reference>;
-    encounter?: string | FHIR.Reference;
-    effective?: string | FHIR.Period | FHIR.Timing;
-    issued?: string;
-    performer?: MaybeArray<string | FHIR.Reference>;
-    value?: FHIR.Quantity | string[] | FHIR.CodeableConcept | string | boolean | number | FHIR.Range | FHIR.Ratio | FHIR.SampledData | FHIR.Period;
-    dataAbsentReason?: string[] | FHIR.CodeableConcept;
-    interpretation?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    note?: FHIR.Annotation[];
-    bodySite?: string[] | FHIR.CodeableConcept;
-    method?: string[] | FHIR.CodeableConcept;
-    specimen?: string | FHIR.Reference;
-    device?: string | FHIR.Reference;
-    referenceRange?: FHIR.BackboneElement[];
-    hasMember?: MaybeArray<string | FHIR.Reference>;
-    derivedFrom?: MaybeArray<string | FHIR.Reference>;
     component?: FHIR.BackboneElement[];
+    contained?: any[];
+    dataAbsentReason?: string[] | FHIR.CodeableConcept;
+    derivedFrom?: MaybeArray<string | FHIR.Reference>;
+    device?: string | FHIR.Reference;
+    effective?: string | FHIR.Period | FHIR.Timing;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    focus?: MaybeArray<string | FHIR.Reference>;
+    hasMember?: MaybeArray<string | FHIR.Reference>;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    interpretation?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    issued?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    method?: string[] | FHIR.CodeableConcept;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    partOf?: MaybeArray<string | FHIR.Reference>;
+    performer?: MaybeArray<string | FHIR.Reference>;
+    referenceRange?: FHIR.BackboneElement[];
+    specimen?: string | FHIR.Reference;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    value?: FHIR.Quantity | string[] | FHIR.CodeableConcept | string | boolean | number | FHIR.Range | FHIR.Ratio | FHIR.SampledData | FHIR.Period;
     [key: string]: any;
 };
 
@@ -63,6 +63,24 @@ export default function(props: Partial<Observation_Props>) {
     if (!_.isNil(props.partOf)) {
         if (!Array.isArray(props.partOf)) { props.partOf = [props.partOf]; }
         resource.partOf = dt.reference(props.partOf);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-codes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.subject)) {
@@ -91,6 +109,37 @@ export default function(props: Partial<Observation_Props>) {
     if (!_.isNil(props.value)) {
         delete resource.value;
         dt.composite(resource, "value", props.value);
+    }
+
+    if (!_.isNil(props.dataAbsentReason)) {
+        resource.dataAbsentReason = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/data-absent-reason", props.dataAbsentReason)
+        );
+
+        dt.ensureConceptText(resource.dataAbsentReason);
+    }
+
+    if (!_.isNil(props.interpretation)) {
+        if (!Array.isArray(props.interpretation)) { props.interpretation = [props.interpretation]; }
+
+        resource.interpretation = props.interpretation.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-interpretation", x)
+        ));
+
+        dt.ensureConceptText(resource.interpretation);
+    }
+
+    if (!_.isNil(props.bodySite)) {
+        resource.bodySite = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/body-site", props.bodySite));
+        dt.ensureConceptText(resource.bodySite);
+    }
+
+    if (!_.isNil(props.method)) {
+        resource.method = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-methods", props.method)
+        );
+
+        dt.ensureConceptText(resource.method);
     }
 
     if (!_.isNil(props.specimen)) {

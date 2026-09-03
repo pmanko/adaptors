@@ -3,53 +3,53 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Contract_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    alias?: string[];
+    applies?: FHIR.Period;
+    author?: string | FHIR.Reference;
+    authority?: MaybeArray<string | FHIR.Reference>;
     contained?: any[];
+    contentDefinition?: FHIR.BackboneElement;
+    contentDerivative?: string[] | FHIR.CodeableConcept;
+    domain?: MaybeArray<string | FHIR.Reference>;
+    expirationType?: string[] | FHIR.CodeableConcept;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    friendly?: FHIR.BackboneElement[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
-    url?: string;
-    version?: string;
-    status?: string;
-    legalState?: string[] | FHIR.CodeableConcept;
+    implicitRules?: string;
     instantiatesCanonical?: string | FHIR.Reference;
     instantiatesUri?: string;
-    contentDerivative?: string[] | FHIR.CodeableConcept;
     issued?: string;
-    applies?: FHIR.Period;
-    expirationType?: string[] | FHIR.CodeableConcept;
-    subject?: MaybeArray<string | FHIR.Reference>;
-    authority?: MaybeArray<string | FHIR.Reference>;
-    domain?: MaybeArray<string | FHIR.Reference>;
-    site?: MaybeArray<string | FHIR.Reference>;
+    language?: string;
+    legal?: FHIR.BackboneElement[];
+    legalState?: string[] | FHIR.CodeableConcept;
+    legallyBinding?: FHIR.Attachment | string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     name?: string;
-    title?: string;
-    subtitle?: string;
-    alias?: string[];
-    author?: string | FHIR.Reference;
+    relevantHistory?: MaybeArray<string | FHIR.Reference>;
+    rule?: FHIR.BackboneElement[];
     scope?: string[] | FHIR.CodeableConcept;
+    signer?: FHIR.BackboneElement[];
+    site?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subType?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    subject?: MaybeArray<string | FHIR.Reference>;
+    subtitle?: string;
+    supportingInfo?: MaybeArray<string | FHIR.Reference>;
+    term?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    title?: string;
     topic?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
     type?: string[] | FHIR.CodeableConcept;
-    subType?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    contentDefinition?: FHIR.BackboneElement;
-    term?: FHIR.BackboneElement[];
-    supportingInfo?: MaybeArray<string | FHIR.Reference>;
-    relevantHistory?: MaybeArray<string | FHIR.Reference>;
-    signer?: FHIR.BackboneElement[];
-    friendly?: FHIR.BackboneElement[];
-    legal?: FHIR.BackboneElement[];
-    rule?: FHIR.BackboneElement[];
-    legallyBinding?: FHIR.Attachment | string | FHIR.Reference;
+    url?: string;
+    version?: string;
     [key: string]: any;
 };
 
@@ -64,8 +64,34 @@ export default function(props: Partial<Contract_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.legalState)) {
+        resource.legalState = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/contract-legalstate", props.legalState)
+        );
+
+        dt.ensureConceptText(resource.legalState);
+    }
+
     if (!_.isNil(props.instantiatesCanonical)) {
         resource.instantiatesCanonical = dt.reference(props.instantiatesCanonical);
+    }
+
+    if (!_.isNil(props.contentDerivative)) {
+        resource.contentDerivative = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/contract-content-derivative",
+            props.contentDerivative
+        ));
+
+        dt.ensureConceptText(resource.contentDerivative);
+    }
+
+    if (!_.isNil(props.expirationType)) {
+        resource.expirationType = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/contract-expiration-type",
+            props.expirationType
+        ));
+
+        dt.ensureConceptText(resource.expirationType);
     }
 
     if (!_.isNil(props.subject)) {
@@ -92,16 +118,36 @@ export default function(props: Partial<Contract_Props>) {
         resource.author = dt.reference(props.author);
     }
 
+    if (!_.isNil(props.scope)) {
+        resource.scope = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/contract-scope", props.scope));
+        dt.ensureConceptText(resource.scope);
+    }
+
     if (!_.isNil(props.topic)) {
         delete resource.topic;
         dt.composite(resource, "topic", props.topic);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/contract-type", props.type));
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.subType)) {
+        if (!Array.isArray(props.subType)) { props.subType = [props.subType]; }
+
+        resource.subType = props.subType.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/contract-subtype", x))
+        );
+
+        dt.ensureConceptText(resource.subType);
     }
 
     if (!_.isNil(props.contentDefinition)) {
         let src = props.contentDefinition;
 
         let _contentDefinition = {
-            ...item
+            ...src
         };
 
         resource.contentDefinition = _contentDefinition;

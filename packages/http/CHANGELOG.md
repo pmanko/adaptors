@@ -1,5 +1,114 @@
 # @openfn/language-http
 
+## 7.3.3 - 03 September 2026
+
+### Patch Changes
+
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 7.3.2 - 30 June 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 7.3.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 7.3.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 7.2.11 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 7.2.10 - 07 April 2026
+
+### Patch Changes
+
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 7.2.9 - 30 March 2026
+
+### Patch Changes
+
+- 295655f: Form body encoding now uses the shared `encodeFormBody` utility from
+  `@openfn/language-common`. No behavioural changes.
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 7.2.8 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 7.2.7 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 7.2.6 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 7.2.5 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 7.2.4 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 7.2.3 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 7.2.2 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 7.2.1 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 7.2.0 - 14 July 2025
 
 ### Minor Changes

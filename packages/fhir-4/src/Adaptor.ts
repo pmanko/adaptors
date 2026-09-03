@@ -1,6 +1,7 @@
 import { composeNextState } from '@openfn/language-common';
 import { throwError, expandReferences } from '@openfn/language-common/util';
 import { assertValidResourceId, prepareNextState, request } from './util';
+import { cleanResponseObject, sortBundle } from './util.js';
 
 /**
  * Fetch a single FHIR resource.
@@ -101,7 +102,7 @@ export function search(resourceType: string, options: SearchQuery) {
     const [$resourceType, $options] = expandReferences(
       state,
       resourceType,
-      options
+      options,
     );
 
     const { query = {} } = $options;
@@ -144,7 +145,7 @@ export function update(reference: string, resource: any) {
     const [$reference, $resource] = expandReferences(
       state,
       reference,
-      resource
+      resource,
     );
 
     assertValidResourceId($reference);
@@ -248,11 +249,65 @@ export function create(resource: any) {
     const response = await request('POST', $resource.resourceType as string, {
       configuration: state.configuration,
       body: $resource,
+    }).catch(e => {
+      cleanResponseObject(state, e);
+      throw e;
     });
 
     console.log(`Created ${response.body.id}`);
 
     return prepareNextState(state, response);
+  };
+}
+
+type CreateBundleOptions = {
+  name?: string;
+  type?:
+    | 'document'
+    | 'message'
+    | 'transaction'
+    | 'transaction-response'
+    | 'batch'
+    | 'batch-response'
+    | 'history'
+    | 'searchset'
+    | 'collection'
+    | 'subscription-notification';
+};
+
+/**
+ * Generate a new bundle on state. Any existing bundle with the same name will be overwritten.
+ * @public
+ * @function
+ * @param {string} [options.name] - A name (key) for this bundle on state (defaults to `bundle`)
+ * @param {string} [options.type] - The type of this bundle. Accepts document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection | subscription-notification.
+ * @param {object} [props] - Assign any arbitrary properties to the bundle object
+ * @state (name) - the updated bundle
+ * @example <caption>Create a default bundle and add an item</caption>
+ * createBundle()
+ * addToBundle($.patient)
+ * @example <caption>Create a batch-type bundle called 'upload'</caption>
+ * createBundle({ name: 'upload', type: 'batch' })
+ * @example <caption>Create a bundle with custom properties</caption>
+ * createBundle({}, { timestamp: new Date().toISOString() }})
+ * * @example <caption>Create a named bundle and add an item</caption>
+ * createBundle({ name: 'upload')
+ * addToBundle($.patient, 'upload')
+ * @returns Operation
+ */
+export function createBundle(options: CreateBundleOptions, props: any = {}) {
+  return state => {
+    const [{ name = 'bundle', type = 'transaction' }, $props] =
+      expandReferences(state, options, props);
+
+    state[name] = {
+      resourceType: 'Bundle',
+      type,
+      entry: [],
+      ...props,
+    };
+
+    return state;
   };
 }
 
@@ -269,6 +324,7 @@ export function create(resource: any) {
  * addToBundle(b.patient($.patientDetails))
  * @returns Operation
  */
+
 export function addToBundle(resources: any | any[], name: string = 'bundle') {
   return state => {
     let [$resources, $name] = expandReferences(state, resources, name);
@@ -296,7 +352,7 @@ export function addToBundle(resources: any | any[], name: string = 'bundle') {
           method: 'PUT', // upsert
           url: `${r.resourceType}/${r.id}`,
         },
-      }))
+      })),
     );
 
     return state;
@@ -338,9 +394,14 @@ export function uploadBundle(bundle: string | any = 'bundle') {
       });
     }
 
+    data.entry = sortBundle(data.entry);
+
     const response = await request('POST', '/', {
       configuration: state.configuration,
       body: data,
+    }).catch(e => {
+      cleanResponseObject(state, e);
+      throw e;
     });
 
     return prepareNextState(state, response);

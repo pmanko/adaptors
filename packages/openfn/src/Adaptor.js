@@ -1,5 +1,5 @@
 import { execute as commonExecute } from '@openfn/language-common';
-import { request as sendRequest } from './util';
+import { request as sendRequest } from './util.js';
 
 /**
  * Options provided to the OpenFn API request
@@ -114,18 +114,19 @@ export function post(path, data, options) {
 
 export {
   alterState,
-  cursor,
-  dateFns,
   beta,
   combine,
+  cursor,
   dataPath,
   dataValue,
+  dateFns,
   each,
   field,
+  fields,
   fn,
   fnIf,
-  fields,
   lastReferenceValue,
+  log,
   merge,
   sourceValue,
 } from '@openfn/language-common';

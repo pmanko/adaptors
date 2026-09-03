@@ -1,0 +1,185 @@
+# @openfn/language-ihris
+
+## 1.2.3 - 03 September 2026
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[96c6822]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+  - @openfn/language-fhir-4@0.6.0
+
+## 1.2.2 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+  - @openfn/language-fhir-4@0.5.5
+
+## 1.2.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+  - @openfn/language-fhir-4@0.5.4
+
+## 1.2.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 1.1.2 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+  - @openfn/language-fhir-4@0.5.3
+
+## 1.1.1 - 17 April 2026
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-fhir-4@0.5.2
+
+## 1.1.0 - 17 April 2026
+
+### Minor Changes
+
+- dea8c5d: Add `fhir.get()` function which handles pagination and user-friendly
+  query parameters.
+
+## 1.0.15 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+  - @openfn/language-fhir-4@0.5.1
+
+## 1.0.14 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+- Updated dependencies \[acb567b]
+  - @openfn/language-common@3.3.0
+  - @openfn/language-fhir-4@0.5.0
+
+## 1.0.13 - 27 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[028c62c]
+- Updated dependencies \[d179474]
+  - @openfn/language-fhir-4@0.4.2
+
+## 1.0.12 - 25 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5e2b2b]
+  - @openfn/language-fhir-4@0.4.1
+
+## 1.0.11 - 23 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[51fdf24]
+  - @openfn/language-fhir-4@0.4.0
+
+## 1.0.10 - 12 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[317e3c7]
+  - @openfn/language-fhir-4@0.3.2
+
+## 1.0.9 - 06 March 2026
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-fhir-4@0.3.1
+
+## 1.0.8 - 02 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[3a9915b]
+- Updated dependencies \[355f383]
+  - @openfn/language-fhir-4@0.3.0
+
+## 1.0.7 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[213115b]
+- Updated dependencies \[6ef5351]
+  - @openfn/language-fhir-4@0.2.10
+
+## 1.0.6 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+  - @openfn/language-fhir-4@0.2.9
+
+## 1.0.5 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[3c52750]
+- Updated dependencies \[81dd8bd]
+  - @openfn/language-fhir-4@0.2.8
+
+## 1.0.4 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[d935dda]
+- Updated dependencies \[a78d53e]
+  - @openfn/language-fhir-4@0.2.7
+
+## 1.0.3 - 30 January 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+  - @openfn/language-fhir-4@0.2.6
+
+## 1.0.2 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+  - @openfn/language-fhir-4@0.2.5
+
+## 1.0.1 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+  - @openfn/language-fhir-4@0.2.4
+
+## 1.0.0 - 04 November 2025
+
+Implemented the common http function helpers for `iHRiS` adaptor. These
+functions allow a user to: `http.get()` - Get `fhir` resources `http.post()` -
+Create a new `fhir`resource `http.put()` - Update an existing `fhir` resource
+`http.request()` - Make a generic request to `iHRIS`

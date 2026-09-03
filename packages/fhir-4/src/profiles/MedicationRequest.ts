@@ -3,52 +3,52 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MedicationRequest_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
-    intent?: string;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    priority?: string;
-    doNotPerform?: boolean;
-    reported?: boolean | string | FHIR.Reference;
-    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    supportingInformation?: MaybeArray<string | FHIR.Reference>;
     authoredOn?: string;
-    requester?: string | FHIR.Reference;
-    performer?: string | FHIR.Reference;
-    performerType?: string[] | FHIR.CodeableConcept;
-    recorder?: string | FHIR.Reference;
-    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    reasonReference?: MaybeArray<string | FHIR.Reference>;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    courseOfTherapyType?: string[] | FHIR.CodeableConcept;
+    detectedIssue?: MaybeArray<string | FHIR.Reference>;
+    dispenseRequest?: FHIR.BackboneElement;
+    doNotPerform?: boolean;
+    dosageInstruction?: FHIR.Dosage[];
+    encounter?: string | FHIR.Reference;
+    eventHistory?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
+    groupIdentifier?: string | FHIR.Identifier;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     instantiatesCanonical?: any[];
     instantiatesUri?: string[];
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    groupIdentifier?: string | FHIR.Identifier;
-    courseOfTherapyType?: string[] | FHIR.CodeableConcept;
     insurance?: MaybeArray<string | FHIR.Reference>;
+    intent?: string;
+    language?: string;
+    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
-    dosageInstruction?: FHIR.Dosage[];
-    dispenseRequest?: FHIR.BackboneElement;
-    substitution?: FHIR.BackboneElement;
+    performer?: string | FHIR.Reference;
+    performerType?: string[] | FHIR.CodeableConcept;
     priorPrescription?: string | FHIR.Reference;
-    detectedIssue?: MaybeArray<string | FHIR.Reference>;
-    eventHistory?: MaybeArray<string | FHIR.Reference>;
+    priority?: string;
+    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    reasonReference?: MaybeArray<string | FHIR.Reference>;
+    recorder?: string | FHIR.Reference;
+    reported?: boolean | string | FHIR.Reference;
+    requester?: string | FHIR.Reference;
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    subject?: string | FHIR.Reference;
+    substitution?: FHIR.BackboneElement;
+    supportingInformation?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -61,6 +61,25 @@ export default function(props: Partial<MedicationRequest_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/medicationrequest-status-reason",
+            props.statusReason
+        ));
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicationrequest-category", x)
+        ));
+
+        dt.ensureConceptText(resource.category);
     }
 
     if (!_.isNil(props.reported)) {
@@ -94,8 +113,26 @@ export default function(props: Partial<MedicationRequest_Props>) {
         resource.performer = dt.reference(props.performer);
     }
 
+    if (!_.isNil(props.performerType)) {
+        resource.performerType = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/performer-role", props.performerType)
+        );
+
+        dt.ensureConceptText(resource.performerType);
+    }
+
     if (!_.isNil(props.recorder)) {
         resource.recorder = dt.reference(props.recorder);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/condition-code", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {
@@ -112,6 +149,15 @@ export default function(props: Partial<MedicationRequest_Props>) {
         resource.groupIdentifier = dt.identifier(props.groupIdentifier);
     }
 
+    if (!_.isNil(props.courseOfTherapyType)) {
+        resource.courseOfTherapyType = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/medicationrequest-course-of-therapy",
+            props.courseOfTherapyType
+        ));
+
+        dt.ensureConceptText(resource.courseOfTherapyType);
+    }
+
     if (!_.isNil(props.insurance)) {
         if (!Array.isArray(props.insurance)) { props.insurance = [props.insurance]; }
         resource.insurance = dt.reference(props.insurance);
@@ -121,7 +167,7 @@ export default function(props: Partial<MedicationRequest_Props>) {
         let src = props.dispenseRequest;
 
         let _dispenseRequest = {
-            ...item
+            ...src
         };
 
         resource.dispenseRequest = _dispenseRequest;
@@ -131,7 +177,7 @@ export default function(props: Partial<MedicationRequest_Props>) {
         let src = props.substitution;
 
         let _substitution = {
-            ...item
+            ...src
         };
 
         resource.substitution = _substitution;

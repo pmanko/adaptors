@@ -3,36 +3,36 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Goal_Props = {
+    achievementStatus?: string[] | FHIR.CodeableConcept;
+    addresses?: MaybeArray<string | FHIR.Reference>;
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    description?: string[] | FHIR.CodeableConcept;
+    expressedBy?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     lifecycleStatus?: string;
-    achievementStatus?: string[] | FHIR.CodeableConcept;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    priority?: string[] | FHIR.CodeableConcept;
-    description?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    start?: string | string[] | FHIR.CodeableConcept;
-    target?: FHIR.BackboneElement[];
-    statusDate?: string;
-    statusReason?: string;
-    expressedBy?: string | FHIR.Reference;
-    addresses?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
     outcomeCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     outcomeReference?: MaybeArray<string | FHIR.Reference>;
+    priority?: string[] | FHIR.CodeableConcept;
+    start?: string | string[] | FHIR.CodeableConcept;
+    statusDate?: string;
+    statusReason?: string;
+    subject?: string | FHIR.Reference;
+    target?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -45,6 +45,40 @@ export default function(props: Partial<Goal_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.achievementStatus)) {
+        resource.achievementStatus = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/goal-achievement", props.achievementStatus)
+        );
+
+        dt.ensureConceptText(resource.achievementStatus);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/goal-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.priority)) {
+        resource.priority = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/goal-priority", props.priority)
+        );
+
+        dt.ensureConceptText(resource.priority);
+    }
+
+    if (!_.isNil(props.description)) {
+        resource.description = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-findings", props.description)
+        );
+
+        dt.ensureConceptText(resource.description);
     }
 
     if (!_.isNil(props.subject)) {
@@ -77,6 +111,16 @@ export default function(props: Partial<Goal_Props>) {
     if (!_.isNil(props.addresses)) {
         if (!Array.isArray(props.addresses)) { props.addresses = [props.addresses]; }
         resource.addresses = dt.reference(props.addresses);
+    }
+
+    if (!_.isNil(props.outcomeCode)) {
+        if (!Array.isArray(props.outcomeCode)) { props.outcomeCode = [props.outcomeCode]; }
+
+        resource.outcomeCode = props.outcomeCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-findings", x))
+        );
+
+        dt.ensureConceptText(resource.outcomeCode);
     }
 
     if (!_.isNil(props.outcomeReference)) {

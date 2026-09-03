@@ -3,34 +3,34 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type PackagedProductDefinition_Props = {
+    characteristic?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    containedItemQuantity?: FHIR.Quantity[];
+    copackagedIndicator?: boolean;
+    description?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    legalStatusOfSupply?: FHIR.BackboneElement[];
+    manufacturer?: MaybeArray<string | FHIR.Reference>;
+    marketingStatus?: FHIR.MarketingStatus[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     name?: string;
-    type?: string[] | FHIR.CodeableConcept;
+    package?: FHIR.BackboneElement;
     packageFor?: MaybeArray<string | FHIR.Reference>;
     status?: string[] | FHIR.CodeableConcept;
     statusDate?: string;
-    containedItemQuantity?: FHIR.Quantity[];
-    description?: FHIR.markdown;
-    legalStatusOfSupply?: FHIR.BackboneElement[];
-    marketingStatus?: FHIR.MarketingStatus[];
-    characteristic?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    copackagedIndicator?: boolean;
-    manufacturer?: MaybeArray<string | FHIR.Reference>;
-    package?: FHIR.BackboneElement;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -45,9 +45,22 @@ export default function(props: Partial<PackagedProductDefinition_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/package-type", props.type));
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.packageFor)) {
         if (!Array.isArray(props.packageFor)) { props.packageFor = [props.packageFor]; }
         resource.packageFor = dt.reference(props.packageFor);
+    }
+
+    if (!_.isNil(props.status)) {
+        resource.status = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/publication-status", props.status)
+        );
+
+        dt.ensureConceptText(resource.status);
     }
 
     if (!_.isNil(props.legalStatusOfSupply)) {
@@ -64,6 +77,16 @@ export default function(props: Partial<PackagedProductDefinition_Props>) {
         }
     }
 
+    if (!_.isNil(props.characteristic)) {
+        if (!Array.isArray(props.characteristic)) { props.characteristic = [props.characteristic]; }
+
+        resource.characteristic = props.characteristic.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/package-characteristic", x))
+        );
+
+        dt.ensureConceptText(resource.characteristic);
+    }
+
     if (!_.isNil(props.manufacturer)) {
         if (!Array.isArray(props.manufacturer)) { props.manufacturer = [props.manufacturer]; }
         resource.manufacturer = dt.reference(props.manufacturer);
@@ -73,7 +96,7 @@ export default function(props: Partial<PackagedProductDefinition_Props>) {
         let src = props.package;
 
         let _package = {
-            ...item
+            ...src
         };
 
         resource.package = _package;

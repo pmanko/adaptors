@@ -1,0 +1,26 @@
+import { builders } from '@openfn/language-fhir-4';
+
+export const {
+  addExtension,
+  c,
+  cc,
+  coding,
+  composite,
+  concept,
+  ensureConceptText,
+  ext,
+  extendSystemMap,
+  extendValues,
+  extension,
+  findExtension,
+  id,
+  identifier,
+  lookupValue,
+  mapSystems,
+  mapValues,
+  ref,
+  reference,
+  setSystemMap,
+  setValues,
+  value,
+} = builders;

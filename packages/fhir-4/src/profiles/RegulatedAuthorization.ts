@@ -3,34 +3,34 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type RegulatedAuthorization_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    basis?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    case?: FHIR.BackboneElement;
     contained?: any[];
+    description?: string;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    holder?: string | FHIR.Reference;
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
-    subject?: MaybeArray<string | FHIR.Reference>;
-    type?: string[] | FHIR.CodeableConcept;
-    description?: FHIR.markdown;
-    region?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    status?: string[] | FHIR.CodeableConcept;
-    statusDate?: string;
-    validityPeriod?: FHIR.Period;
+    implicitRules?: string;
     indication?: FHIR.CodeableReference;
     intendedUse?: string[] | FHIR.CodeableConcept;
-    basis?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    holder?: string | FHIR.Reference;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    region?: MaybeArray<string[] | FHIR.CodeableConcept>;
     regulator?: string | FHIR.Reference;
-    case?: FHIR.BackboneElement;
+    status?: string[] | FHIR.CodeableConcept;
+    statusDate?: string;
+    subject?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
+    validityPeriod?: FHIR.Period;
     [key: string]: any;
 };
 
@@ -50,6 +50,50 @@ export default function(props: Partial<RegulatedAuthorization_Props>) {
         resource.subject = dt.reference(props.subject);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/regulated-authorization-type", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.region)) {
+        if (!Array.isArray(props.region)) { props.region = [props.region]; }
+
+        resource.region = props.region.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/jurisdiction", x))
+        );
+
+        dt.ensureConceptText(resource.region);
+    }
+
+    if (!_.isNil(props.status)) {
+        resource.status = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/publication-status", props.status)
+        );
+
+        dt.ensureConceptText(resource.status);
+    }
+
+    if (!_.isNil(props.intendedUse)) {
+        resource.intendedUse = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/product-intended-use", props.intendedUse)
+        );
+
+        dt.ensureConceptText(resource.intendedUse);
+    }
+
+    if (!_.isNil(props.basis)) {
+        if (!Array.isArray(props.basis)) { props.basis = [props.basis]; }
+
+        resource.basis = props.basis.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/regulated-authorization-basis", x)
+        ));
+
+        dt.ensureConceptText(resource.basis);
+    }
+
     if (!_.isNil(props.holder)) {
         resource.holder = dt.reference(props.holder);
     }
@@ -62,7 +106,7 @@ export default function(props: Partial<RegulatedAuthorization_Props>) {
         let src = props.case;
 
         let _case = {
-            ...item
+            ...src
         };
 
         resource.case = _case;

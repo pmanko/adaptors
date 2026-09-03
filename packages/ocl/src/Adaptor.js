@@ -1,6 +1,6 @@
 import { execute as commonExecute } from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
-import { buildMappingsUrl, handleResponse, request } from './Util';
+import { buildMappingsUrl, handleResponse, request } from './Util.js';
 
 /**
  * Execute a sequence of operations.
@@ -73,7 +73,7 @@ export function getMappings(ownerId, repositoryId, options, callback = false) {
     });
 
     return request(url, query).then(response =>
-      handleResponse(response, state, callback)
+      handleResponse(response, state, callback),
     );
   };
 }
@@ -112,12 +112,13 @@ export function get(path, query, callback = false) {
     const url = `${baseUrl}/${resolvedPath}`;
 
     return request(url, resolvedQuery).then(response =>
-      handleResponse(response, state, callback)
+      handleResponse(response, state, callback),
     );
   };
 }
 
 export {
+  combine,
   fn,
   fnIf,
   alterState,
@@ -127,6 +128,7 @@ export {
   field,
   fields,
   lastReferenceValue,
+  log,
   merge,
   sourceValue,
 } from '@openfn/language-common';

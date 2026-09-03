@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type NutritionProduct_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    status?: string;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     code?: string[] | FHIR.CodeableConcept;
-    manufacturer?: MaybeArray<string | FHIR.Reference>;
-    nutrient?: FHIR.BackboneElement[];
+    contained?: any[];
+    extension?: FHIR.Extension[];
+    id?: string;
+    implicitRules?: string;
     ingredient?: FHIR.BackboneElement[];
-    knownAllergen?: FHIR.CodeableReference[];
-    productCharacteristic?: FHIR.BackboneElement[];
     instance?: FHIR.BackboneElement;
+    knownAllergen?: FHIR.CodeableReference[];
+    language?: string;
+    manufacturer?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
+    nutrient?: FHIR.BackboneElement[];
+    productCharacteristic?: FHIR.BackboneElement[];
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -35,6 +35,24 @@ export default function(props: Partial<NutritionProduct_Props>) {
         resourceType: "NutritionProduct",
         ...props
     };
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/nutrition-product-category", x)
+        ));
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/edible-substance-type", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
 
     if (!_.isNil(props.manufacturer)) {
         if (!Array.isArray(props.manufacturer)) { props.manufacturer = [props.manufacturer]; }
@@ -87,7 +105,7 @@ export default function(props: Partial<NutritionProduct_Props>) {
         let src = props.instance;
 
         let _instance = {
-            ...item
+            ...src
         };
 
         resource.instance = _instance;

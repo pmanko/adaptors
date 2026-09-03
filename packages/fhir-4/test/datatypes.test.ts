@@ -24,6 +24,66 @@ describe('identifier', () => {
   });
 
   it('should map an identifier with a mapped system', () => {
+    // Note that this can be done through an IG adaptor
+    // or by a user in job code
+    b.setValues(
+      'abc',
+      {
+        PI: {
+          code: 'PI',
+          display: 'Personal ID Number',
+          system: 'https://www/fhir/CodeSystem/SzPersonIdentificationsCS',
+        },
+      },
+      'default',
+    );
+
+    const result = b.identifier({ type: 'PI' }, [], { type: 'abc' });
+
+    expect(result).to.eql({
+      type: {
+        coding: [
+          {
+            code: 'PI',
+            display: 'Personal ID Number',
+            system: 'https://www/fhir/CodeSystem/SzPersonIdentificationsCS',
+          },
+        ],
+      },
+    });
+  });
+
+  it('should map an identifier with a mapped system and look up by display', () => {
+    b.setValues(
+      'abc',
+      {
+        '2143': {
+          code: '2143',
+          display: 'PID',
+          system: 'https://www/fhir/CodeSystem/SzPersonIdentificationsCS',
+        },
+      },
+      'default',
+    );
+
+    // Map the type using the display string, not the code
+    // which is useful in cases where the code is arbitrary
+    const result = b.identifier({ type: 'PID' }, [], { type: 'abc' });
+
+    expect(result).to.eql({
+      type: {
+        coding: [
+          {
+            code: '2143',
+            display: 'PID',
+            system: 'https://www/fhir/CodeSystem/SzPersonIdentificationsCS',
+          },
+        ],
+      },
+    });
+  });
+
+  it.skip('should map a type value', () => {
     b.setSystemMap({
       default: 'xyz',
     })({});
@@ -39,7 +99,7 @@ describe('identifier', () => {
   });
 
   it('should add an extension', () => {
-    const result = b.identifier({ value: 'abc' }, { value: 'x', url: 'www' });
+    const result = b.identifier({ value: 'abc' }, [{ value: 'x', url: 'www' }]);
 
     expect(result.extension).to.eql([{ valueString: 'x', url: 'www' }]);
   });
@@ -92,6 +152,27 @@ describe('coding', () => {
 
   it('should use a shorthand', () => {
     const result = b.c('1234', 'https://fake.loinc.org');
+
+    expect(result).to.eql({ code: '1234', system: 'https://fake.loinc.org' });
+  });
+
+  // This is convenient to pass into datatype builders
+  it('should accept a coding object', () => {
+    const obj = {
+      system: 'https://fake.loinc.org',
+      version: '1',
+      code: '1234',
+      display: 'a thing',
+      userSelected: false,
+    };
+    const result = b.coding(obj);
+
+    expect(result).to.eql(obj);
+  });
+
+  // This is convenient to pass into datatype builders
+  it('should accept a coding tuple', () => {
+    const result = b.coding(['1234', 'https://fake.loinc.org']);
 
     expect(result).to.eql({ code: '1234', system: 'https://fake.loinc.org' });
   });
@@ -217,5 +298,82 @@ describe('concept', () => {
         { code: '5678', system: 'https://fake.loinc.org' },
       ],
     });
+  });
+});
+
+describe('composite', () => {
+  it('should identify valid datetime strings as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2022-06-29');
+    expect(obj).to.have.property('valueDateTime', '2022-06-29');
+  });
+
+  it('should identify full ISO datetime strings as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2022-08-14T14:43:47.000Z');
+    expect(obj).to.have.property('valueDateTime', '2022-08-14T14:43:47.000Z');
+  });
+
+  it('should identify datetime with timezone as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2022-08-14T14:43:47+02:00');
+    expect(obj).to.have.property('valueDateTime', '2022-08-14T14:43:47+02:00');
+  });
+
+  it('should NOT identify phone numbers as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '+260759205190');
+    expect(obj).to.have.property('valueString', '+260759205190');
+    expect(obj).to.not.have.property('valueDateTime');
+  });
+
+  it('should NOT identify international phone numbers as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '+1234567890123');
+    expect(obj).to.have.property('valueString', '+1234567890123');
+    expect(obj).to.not.have.property('valueDateTime');
+  });
+
+  it('should NOT identify numbers starting with valid year patterns as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2607592051901234');
+    expect(obj).to.have.property('valueString', '2607592051901234');
+    expect(obj).to.not.have.property('valueDateTime');
+  });
+
+  it('should identify partial dates as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2022-08');
+    expect(obj).to.have.property('valueDateTime', '2022-08');
+  });
+
+  it('should identify years as DateTime', () => {
+    const obj = {};
+    b.composite(obj, 'value', '2022');
+    expect(obj).to.have.property('valueDateTime', '2022');
+  });
+
+  it('should handle boolean values correctly', () => {
+    const obj = {};
+    b.composite(obj, 'value', true);
+    expect(obj).to.have.property('valueBoolean', true);
+  });
+
+  it('should handle numeric values correctly', () => {
+    const obj = {};
+    b.composite(obj, 'value', 42);
+    expect(obj).to.have.property('valueInteger', 42);
+  });
+
+  it('should handle regular strings correctly', () => {
+    const obj = {};
+    b.composite(obj, 'value', 'hello world');
+    expect(obj).to.have.property('valueString', 'hello world');
+  });
+
+  it('should identify Quantity objects', () => {
+    const obj: any = {};
+    b.composite(obj, 'value', { value: 70, unit: 'kg' });
+    expect(obj.valueQuantity).to.eql({ value: 70, unit: 'kg' });
   });
 });

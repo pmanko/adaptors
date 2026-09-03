@@ -1,5 +1,122 @@
 # @openfn/language-kobotoolbox
 
+## 4.3.3 - 03 September 2026
+
+### Patch Changes
+
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 4.3.2 - 30 June 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 4.3.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 4.3.0 - 21 May 2026
+
+### Minor Changes
+
+- 71115af: export `combine` function from common
+- bf26881: export `log` function from common
+
+## 4.2.14 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 4.2.13 - 07 April 2026
+
+### Patch Changes
+
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 4.2.12 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 4.2.11 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 4.2.10 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 4.2.9 - 09 December 2025
+
+### Patch Changes
+
+- 39f91ad: Update default pagination pagesize to comply with new KoboToolbox API
+  [restrictions](https://community.kobotoolbox.org/t/important-changes-to-api-v2-assets-uid-asset-data-result-limits/74610):
+
+## 4.2.8 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 4.2.7 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 4.2.6 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 4.2.5 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 4.2.4 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 4.2.3 - 01 September 2025
+
+### Patch Changes
+
+- df258c5: Update `http.request` option docs to use `data` instead of `body` in
+  requests
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 4.2.2 - 14 July 2025
 
 ### Patch Changes

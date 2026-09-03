@@ -3,32 +3,32 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type PaymentNotice_Props = {
+    amount?: FHIR.Money;
+    contained?: any[];
+    created?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    request?: string | FHIR.Reference;
-    response?: string | FHIR.Reference;
-    created?: string;
-    provider?: string | FHIR.Reference;
+    payee?: string | FHIR.Reference;
     payment?: string | FHIR.Reference;
     paymentDate?: string;
-    payee?: string | FHIR.Reference;
-    recipient?: string | FHIR.Reference;
-    amount?: FHIR.Money;
     paymentStatus?: string[] | FHIR.CodeableConcept;
+    provider?: string | FHIR.Reference;
+    recipient?: string | FHIR.Reference;
+    request?: string | FHIR.Reference;
+    response?: string | FHIR.Reference;
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -65,6 +65,14 @@ export default function(props: Partial<PaymentNotice_Props>) {
 
     if (!_.isNil(props.recipient)) {
         resource.recipient = dt.reference(props.recipient);
+    }
+
+    if (!_.isNil(props.paymentStatus)) {
+        resource.paymentStatus = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/payment-status", props.paymentStatus)
+        );
+
+        dt.ensureConceptText(resource.paymentStatus);
     }
 
     return resource;

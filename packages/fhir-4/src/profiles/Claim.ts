@@ -3,47 +3,47 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Claim_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    type?: string[] | FHIR.CodeableConcept;
-    subType?: string[] | FHIR.CodeableConcept;
-    use?: string;
-    patient?: string | FHIR.Reference;
-    billablePeriod?: FHIR.Period;
-    created?: string;
-    enterer?: string | FHIR.Reference;
-    insurer?: string | FHIR.Reference;
-    provider?: string | FHIR.Reference;
-    priority?: string[] | FHIR.CodeableConcept;
-    fundsReserve?: string[] | FHIR.CodeableConcept;
-    related?: FHIR.BackboneElement[];
-    prescription?: string | FHIR.Reference;
-    originalPrescription?: string | FHIR.Reference;
-    payee?: FHIR.BackboneElement;
-    referral?: string | FHIR.Reference;
-    facility?: string | FHIR.Reference;
-    careTeam?: FHIR.BackboneElement[];
-    supportingInfo?: FHIR.BackboneElement[];
-    diagnosis?: FHIR.BackboneElement[];
-    procedure?: FHIR.BackboneElement[];
-    insurance?: FHIR.BackboneElement[];
     accident?: FHIR.BackboneElement;
+    billablePeriod?: FHIR.Period;
+    careTeam?: FHIR.BackboneElement[];
+    contained?: any[];
+    created?: string;
+    diagnosis?: FHIR.BackboneElement[];
+    enterer?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    facility?: string | FHIR.Reference;
+    fundsReserve?: string[] | FHIR.CodeableConcept;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    insurance?: FHIR.BackboneElement[];
+    insurer?: string | FHIR.Reference;
     item?: FHIR.BackboneElement[];
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    originalPrescription?: string | FHIR.Reference;
+    patient?: string | FHIR.Reference;
+    payee?: FHIR.BackboneElement;
+    prescription?: string | FHIR.Reference;
+    priority?: string[] | FHIR.CodeableConcept;
+    procedure?: FHIR.BackboneElement[];
+    provider?: string | FHIR.Reference;
+    referral?: string | FHIR.Reference;
+    related?: FHIR.BackboneElement[];
+    status?: string;
+    subType?: string[] | FHIR.CodeableConcept;
+    supportingInfo?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     total?: FHIR.Money;
+    type?: string[] | FHIR.CodeableConcept;
+    use?: string;
     [key: string]: any;
 };
 
@@ -56,6 +56,19 @@ export default function(props: Partial<Claim_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/claim-type", props.type));
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.subType)) {
+        resource.subType = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/claim-subtype", props.subType)
+        );
+
+        dt.ensureConceptText(resource.subType);
     }
 
     if (!_.isNil(props.patient)) {
@@ -72,6 +85,22 @@ export default function(props: Partial<Claim_Props>) {
 
     if (!_.isNil(props.provider)) {
         resource.provider = dt.reference(props.provider);
+    }
+
+    if (!_.isNil(props.priority)) {
+        resource.priority = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/process-priority", props.priority)
+        );
+
+        dt.ensureConceptText(resource.priority);
+    }
+
+    if (!_.isNil(props.fundsReserve)) {
+        resource.fundsReserve = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/fundsreserve", props.fundsReserve)
+        );
+
+        dt.ensureConceptText(resource.fundsReserve);
     }
 
     if (!_.isNil(props.related)) {
@@ -100,7 +129,7 @@ export default function(props: Partial<Claim_Props>) {
         let src = props.payee;
 
         let _payee = {
-            ...item
+            ...src
         };
 
         resource.payee = _payee;
@@ -188,7 +217,7 @@ export default function(props: Partial<Claim_Props>) {
         let src = props.accident;
 
         let _accident = {
-            ...item
+            ...src
         };
 
         resource.accident = _accident;

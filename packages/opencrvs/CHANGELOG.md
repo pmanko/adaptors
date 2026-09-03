@@ -1,5 +1,255 @@
 # @openfn/language-opencrvs
 
+## 1.2.3 - 03 September 2026
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[96c6822]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+  - @openfn/language-fhir-4@0.6.0
+
+## 1.2.2 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+  - @openfn/language-fhir-4@0.5.5
+
+## 1.2.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+  - @openfn/language-fhir-4@0.5.4
+
+## 1.2.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 1.1.1 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+  - @openfn/language-fhir-4@0.5.3
+
+## 1.1.0 - 20 May 2026
+
+### Minor Changes
+
+- 2332c48: Add v2 event-notification API support: `createEvent`, `notifyEvent`,
+  `submitBirthNotification` (chained create+notify), and `getLocations`. The
+  opencrvs adaptor's internal `request` helper now accepts a `host` option
+  (`'gateway' | 'register' | 'countryconfig'`, default `'gateway'`) to target
+  the appropriate OpenCRVS subdomain. Existing operations
+  (`createBirthNotification`, `queryEvents`) are unchanged and continue to
+  target the v1 gateway; `createBirthNotification` is marked `@deprecated` for
+  v2 deployments.
+
+## 1.0.27 - 17 April 2026
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-fhir-4@0.5.2
+
+## 1.0.26 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+  - @openfn/language-fhir-4@0.5.1
+
+## 1.0.25 - 02 April 2026
+
+### Patch Changes
+
+- Fix OpenCRVS logos
+
+## 1.0.24 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+- Updated dependencies \[acb567b]
+  - @openfn/language-common@3.3.0
+  - @openfn/language-fhir-4@0.5.0
+
+## 1.0.23 - 27 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[028c62c]
+- Updated dependencies \[d179474]
+  - @openfn/language-fhir-4@0.4.2
+
+## 1.0.22 - 25 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5e2b2b]
+  - @openfn/language-fhir-4@0.4.1
+
+## 1.0.21 - 23 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[51fdf24]
+  - @openfn/language-fhir-4@0.4.0
+
+## 1.0.20 - 12 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[317e3c7]
+  - @openfn/language-fhir-4@0.3.2
+
+## 1.0.19 - 06 March 2026
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-fhir-4@0.3.1
+
+## 1.0.18 - 02 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[3a9915b]
+- Updated dependencies \[355f383]
+  - @openfn/language-fhir-4@0.3.0
+
+## 1.0.17 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[213115b]
+- Updated dependencies \[6ef5351]
+  - @openfn/language-fhir-4@0.2.10
+
+## 1.0.16 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+  - @openfn/language-fhir-4@0.2.9
+
+## 1.0.15 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[3c52750]
+- Updated dependencies \[81dd8bd]
+  - @openfn/language-fhir-4@0.2.8
+
+## 1.0.14 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[d935dda]
+- Updated dependencies \[a78d53e]
+  - @openfn/language-fhir-4@0.2.7
+
+## 1.0.13 - 30 January 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+  - @openfn/language-fhir-4@0.2.6
+
+## 1.0.12 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+  - @openfn/language-fhir-4@0.2.5
+
+## 1.0.11 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+  - @openfn/language-fhir-4@0.2.4
+
+## 1.0.10 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4e531fe]
+  - @openfn/language-fhir-4@0.2.3
+
+## 1.0.9 - 29 October 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+  - @openfn/language-fhir-4@0.2.2
+
+## 1.0.8 - 23 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[fccecdc]
+  - @openfn/language-fhir-4@0.2.1
+
+## 1.0.7 - 21 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[2040fa4]
+  - @openfn/language-fhir-4@0.2.0
+
+## 1.0.6 - 16 October 2025
+
+### Patch Changes
+
+- 5255aad: Add `createDocumentaryEntry` for creating resources using `fhir-4`
+  bundles
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+  - @openfn/language-fhir-4@0.1.12
+
+## 1.0.5 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+  - @openfn/language-fhir-4@0.1.11
+
+## 1.0.4 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+  - @openfn/language-fhir-4@0.1.10
+
+## 1.0.3 - 28 August 2025
+
+### Patch Changes
+
+- b7af59a: - Update `package.json` description to be LLM-readable
+
 ## 1.0.2 - 04 August 2025
 
 ### Patch Changes
@@ -12,6 +262,6 @@
 
 - ad57dbf: Update `queryEvents()` examples
 
-## 1.0.0
+## 1.0.0 - 14 July 2025
 
 Implement `queryEvents()` and `createBirthRecord()` functions from `OpenCRVS`

@@ -3,29 +3,29 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ClinicalUseDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    type?: string;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    subject?: MaybeArray<string | FHIR.Reference>;
-    status?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
     contraindication?: FHIR.BackboneElement;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     indication?: FHIR.BackboneElement;
     interaction?: FHIR.BackboneElement;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     population?: MaybeArray<string | FHIR.Reference>;
+    status?: string[] | FHIR.CodeableConcept;
+    subject?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: string;
     undesirableEffect?: FHIR.BackboneElement;
     warning?: FHIR.BackboneElement;
     [key: string]: any;
@@ -42,16 +42,34 @@ export default function(props: Partial<ClinicalUseDefinition_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-use-definition-category", x)
+        ));
+
+        dt.ensureConceptText(resource.category);
+    }
+
     if (!_.isNil(props.subject)) {
         if (!Array.isArray(props.subject)) { props.subject = [props.subject]; }
         resource.subject = dt.reference(props.subject);
+    }
+
+    if (!_.isNil(props.status)) {
+        resource.status = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/publication-status", props.status)
+        );
+
+        dt.ensureConceptText(resource.status);
     }
 
     if (!_.isNil(props.contraindication)) {
         let src = props.contraindication;
 
         let _contraindication = {
-            ...item
+            ...src
         };
 
         resource.contraindication = _contraindication;
@@ -61,7 +79,7 @@ export default function(props: Partial<ClinicalUseDefinition_Props>) {
         let src = props.indication;
 
         let _indication = {
-            ...item
+            ...src
         };
 
         resource.indication = _indication;
@@ -71,7 +89,7 @@ export default function(props: Partial<ClinicalUseDefinition_Props>) {
         let src = props.interaction;
 
         let _interaction = {
-            ...item
+            ...src
         };
 
         resource.interaction = _interaction;
@@ -86,7 +104,7 @@ export default function(props: Partial<ClinicalUseDefinition_Props>) {
         let src = props.undesirableEffect;
 
         let _undesirableEffect = {
-            ...item
+            ...src
         };
 
         resource.undesirableEffect = _undesirableEffect;
@@ -96,7 +114,7 @@ export default function(props: Partial<ClinicalUseDefinition_Props>) {
         let src = props.warning;
 
         let _warning = {
-            ...item
+            ...src
         };
 
         resource.warning = _warning;

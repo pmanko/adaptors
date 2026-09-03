@@ -6,9 +6,9 @@ import {
   getForms,
   getSubmissions,
   getDeploymentInfo,
-} from '../src/Adaptor';
-import { responseWithPagination } from './helper';
-import { DEFAULT_PAGE_SIZE, DEFAULT_LIMIT } from '../src/util';
+} from '../src/Adaptor.js';
+import { responseWithPagination } from './helper.js';
+import { DEFAULT_PAGE_SIZE, DEFAULT_LIMIT } from '../src/util.js';
 const defaultLimit = DEFAULT_LIMIT;
 const pageLimit = DEFAULT_PAGE_SIZE;
 
@@ -65,13 +65,13 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
           return results;
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
       .times(6);
 
@@ -104,13 +104,13 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
           return results;
         },
         {
           ...jsonHeaders,
-        }
+        },
       );
     const { data } = await getSubmissions('aXecHjmbATuF6iGFmvBLBX', {
       start: 2,
@@ -141,22 +141,22 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
           return results;
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
-      .times(3);
+      .times(30);
 
     const { data } = await execute(getSubmissions('aXecHjmbATuF6iGFmvBLBX'))(
-      state
+      state,
     );
 
-    expect(requestCount).to.eql(3);
-    expect(data.length).to.eql(3e4);
+    expect(requestCount).to.eql(30);
+    expect(data.length).to.eql(defaultLimit);
     expect(items.length).to.greaterThan(data.length);
   });
 
@@ -183,18 +183,18 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
           return results;
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
       .times(1);
 
     const { data } = await execute(
-      getSubmissions('aXecHjmbATuF6iGFmvBLBX', { limit })
+      getSubmissions('aXecHjmbATuF6iGFmvBLBX', { limit }),
     )(state);
 
     expect(data).to.eql(mockData);
@@ -226,21 +226,21 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
-      .times(4);
+      .times(31);
 
     const { data } = await getSubmissions('aXecHjmbATuF6iGFmvBLBX', {
       limit: 4e4,
     })(state);
 
-    expect(requestCount).to.eql(4);
-    expect(data.length).to.eql(3e4 + 2);
+    expect(requestCount).to.eql(31);
+    expect(data.length).to.eql(defaultLimit + 2);
     expect(data.length).to.greaterThan(defaultLimit);
   });
   it('should allow custom pageSize', async () => {
@@ -270,12 +270,12 @@ describe('getSubmissions', () => {
             {
               url: `${origin}${path}`,
               defaultLimit: 1,
-            }
+            },
           );
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
       .times(10);
 
@@ -311,21 +311,21 @@ describe('getSubmissions', () => {
             },
             {
               url: `${origin}${path}`,
-            }
+            },
           );
         },
         {
           ...jsonHeaders,
-        }
+        },
       )
-      .times(4);
+      .times(31);
 
     const { data } = await getSubmissions('aXecHjmbATuF6iGFmvBLBX', {
       limit: Infinity,
     })(state);
 
-    expect(data.length).to.eql(3e4 + 1);
-    expect(requestCount).to.eql(4);
+    expect(data.length).to.eql(defaultLimit + 1);
+    expect(requestCount).to.eql(31);
   });
 
   afterEach(() => {
@@ -344,7 +344,7 @@ describe('getForms', () => {
       .reply(
         200,
         { results: [{ name: 'Feedback Survey Test', asset_type: 'survey' }] },
-        { ...jsonHeaders }
+        { ...jsonHeaders },
       );
   });
 
@@ -368,7 +368,7 @@ describe('getDeploymentInfo', () => {
       .reply(
         200,
         { asset: { name: 'Feedback Survey Test', asset_type: 'survey' } },
-        { ...jsonHeaders }
+        { ...jsonHeaders },
       );
   });
 

@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ImmunizationEvaluation_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    patient?: string | FHIR.Reference;
-    date?: string;
     authority?: string | FHIR.Reference;
-    targetDisease?: string[] | FHIR.CodeableConcept;
-    immunizationEvent?: string | FHIR.Reference;
+    contained?: any[];
+    date?: string;
+    description?: string;
+    doseNumber?: number | string;
     doseStatus?: string[] | FHIR.CodeableConcept;
     doseStatusReason?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    description?: string;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    immunizationEvent?: string | FHIR.Reference;
+    implicitRules?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    patient?: string | FHIR.Reference;
     series?: string;
-    doseNumber?: number | string;
     seriesDoses?: number | string;
+    status?: string;
+    targetDisease?: string[] | FHIR.CodeableConcept;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -52,8 +52,37 @@ export default function(props: Partial<ImmunizationEvaluation_Props>) {
         resource.authority = dt.reference(props.authority);
     }
 
+    if (!_.isNil(props.targetDisease)) {
+        resource.targetDisease = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/immunization-evaluation-target-disease",
+            props.targetDisease
+        ));
+
+        dt.ensureConceptText(resource.targetDisease);
+    }
+
     if (!_.isNil(props.immunizationEvent)) {
         resource.immunizationEvent = dt.reference(props.immunizationEvent);
+    }
+
+    if (!_.isNil(props.doseStatus)) {
+        resource.doseStatus = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status",
+            props.doseStatus
+        ));
+
+        dt.ensureConceptText(resource.doseStatus);
+    }
+
+    if (!_.isNil(props.doseStatusReason)) {
+        if (!Array.isArray(props.doseStatusReason)) { props.doseStatusReason = [props.doseStatusReason]; }
+
+        resource.doseStatusReason = props.doseStatusReason.map((x) => dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/immunization-evaluation-dose-status-reason",
+            x
+        )));
+
+        dt.ensureConceptText(resource.doseStatusReason);
     }
 
     if (!_.isNil(props.doseNumber)) {

@@ -3,42 +3,42 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type DeviceDefinition_Props = {
+    capability?: FHIR.BackboneElement[];
+    contact?: FHIR.ContactPoint[];
+    contained?: any[];
+    deviceName?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    udiDeviceIdentifier?: FHIR.BackboneElement[];
+    languageCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     manufacturer?: string | string | FHIR.Reference;
-    deviceName?: FHIR.BackboneElement[];
+    material?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
     modelNumber?: string;
-    type?: string[] | FHIR.CodeableConcept;
-    specialization?: FHIR.BackboneElement[];
-    version?: string[];
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    onlineInformation?: string;
+    owner?: string | FHIR.Reference;
+    parentDevice?: string | FHIR.Reference;
+    physicalCharacteristics?: FHIR.ProdCharacteristic;
+    property?: FHIR.BackboneElement[];
+    quantity?: FHIR.Quantity;
     safety?: MaybeArray<string[] | FHIR.CodeableConcept>;
     shelfLifeStorage?: FHIR.ProductShelfLife[];
-    physicalCharacteristics?: FHIR.ProdCharacteristic;
-    languageCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    capability?: FHIR.BackboneElement[];
-    property?: FHIR.BackboneElement[];
-    owner?: string | FHIR.Reference;
-    contact?: FHIR.ContactPoint[];
+    specialization?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
+    udiDeviceIdentifier?: FHIR.BackboneElement[];
     url?: string;
-    onlineInformation?: string;
-    note?: FHIR.Annotation[];
-    quantity?: FHIR.Quantity;
-    parentDevice?: string | FHIR.Reference;
-    material?: FHIR.BackboneElement[];
+    version?: string[];
     [key: string]: any;
 };
 
@@ -86,6 +86,11 @@ export default function(props: Partial<DeviceDefinition_Props>) {
         }
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/device-kind", props.type));
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.specialization)) {
         let src = props.specialization;
         if (!Array.isArray(src)) { src = [src]; }
@@ -98,6 +103,22 @@ export default function(props: Partial<DeviceDefinition_Props>) {
 
             resource.specialization.push(_specialization);
         }
+    }
+
+    if (!_.isNil(props.safety)) {
+        if (!Array.isArray(props.safety)) { props.safety = [props.safety]; }
+
+        resource.safety = props.safety.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/device-safety", x))
+        );
+
+        dt.ensureConceptText(resource.safety);
+    }
+
+    if (!_.isNil(props.languageCode)) {
+        if (!Array.isArray(props.languageCode)) { props.languageCode = [props.languageCode]; }
+        resource.languageCode = dt.concept(props.languageCode);
+        dt.ensureConceptText(resource.languageCode);
     }
 
     if (!_.isNil(props.capability)) {

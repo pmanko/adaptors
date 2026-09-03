@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Practitioner_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    active?: boolean;
+    address?: FHIR.Address[];
+    birthDate?: string;
+    communication?: MaybeArray<string[] | FHIR.CodeableConcept>;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    active?: boolean;
-    name?: FHIR.HumanName[];
-    telecom?: FHIR.ContactPoint[];
-    address?: FHIR.Address[];
     gender?: string;
-    birthDate?: string;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: FHIR.HumanName[];
     photo?: FHIR.Attachment[];
     qualification?: FHIR.BackboneElement[];
-    communication?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    telecom?: FHIR.ContactPoint[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -53,6 +53,16 @@ export default function(props: Partial<Practitioner_Props>) {
 
             resource.qualification.push(_qualification);
         }
+    }
+
+    if (!_.isNil(props.communication)) {
+        if (!Array.isArray(props.communication)) { props.communication = [props.communication]; }
+
+        resource.communication = props.communication.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/languages", x))
+        );
+
+        dt.ensureConceptText(resource.communication);
     }
 
     return resource;

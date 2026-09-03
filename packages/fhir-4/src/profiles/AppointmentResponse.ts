@@ -3,28 +3,28 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type AppointmentResponse_Props = {
+    actor?: string | FHIR.Reference;
+    appointment?: string | FHIR.Reference;
+    comment?: string;
+    contained?: any[];
+    end?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    appointment?: string | FHIR.Reference;
-    start?: string;
-    end?: string;
-    participantType?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    actor?: string | FHIR.Reference;
     participantStatus?: string;
-    comment?: string;
+    participantType?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    start?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -41,6 +41,16 @@ export default function(props: Partial<AppointmentResponse_Props>) {
 
     if (!_.isNil(props.appointment)) {
         resource.appointment = dt.reference(props.appointment);
+    }
+
+    if (!_.isNil(props.participantType)) {
+        if (!Array.isArray(props.participantType)) { props.participantType = [props.participantType]; }
+
+        resource.participantType = props.participantType.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/encounter-participant-type", x)
+        ));
+
+        dt.ensureConceptText(resource.participantType);
     }
 
     if (!_.isNil(props.actor)) {

@@ -93,7 +93,7 @@
         "operation"
       ],
       "docs": {
-        "description": "A custom operation that will only execute the function if the condition returns true",
+        "description": "Execute a function only when the condition returns true",
         "tags": [
           {
             "title": "public",
@@ -1397,6 +1397,88 @@
           {
             "title": "returns",
             "description": "The function returns a Promise that resolves to the result of parsing a CSV `stringOrStream`.",
+            "type": {
+              "type": "NameExpression",
+              "name": "Operation"
+            }
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "validate",
+      "params": [
+        "schema",
+        "data"
+      ],
+      "docs": {
+        "description": "Validate against a JSON schema. Any errors are written to an array at `state.validationErrors`.\nSchema can be passed directly, loaded as a JSON path from state, or loaded from a URL\nData can be passed directly or loaded as a JSON path from state.\nBy default, schema is loaded from `state.schema` and data from `state.data`.",
+        "tags": [
+          {
+            "title": "public",
+            "description": null,
+            "type": null
+          },
+          {
+            "title": "function",
+            "description": null,
+            "name": null
+          },
+          {
+            "title": "param",
+            "description": "The schema, path or URL to validate against",
+            "type": {
+              "type": "UnionType",
+              "elements": [
+                {
+                  "type": "NameExpression",
+                  "name": "string"
+                },
+                {
+                  "type": "NameExpression",
+                  "name": "object"
+                }
+              ]
+            },
+            "name": "schema"
+          },
+          {
+            "title": "param",
+            "description": "The data or path to validate",
+            "type": {
+              "type": "UnionType",
+              "elements": [
+                {
+                  "type": "NameExpression",
+                  "name": "string"
+                },
+                {
+                  "type": "NameExpression",
+                  "name": "object"
+                }
+              ]
+            },
+            "name": "data"
+          },
+          {
+            "title": "example",
+            "description": "validate()",
+            "caption": "Validate `state.data` with `state.schema`"
+          },
+          {
+            "title": "example",
+            "description": "validate(\"https://www.example.com/schema/record\", \"form\")",
+            "caption": "Validate form data at `state.form` with a schema from a URL"
+          },
+          {
+            "title": "example",
+            "description": "each(\"records[*]\", validate(\"https://www.example.com/schema/record\"))",
+            "caption": "Validate the each item in `state.records` with a schema from a URL"
+          },
+          {
+            "title": "returns",
+            "description": null,
             "type": {
               "type": "NameExpression",
               "name": "Operation"

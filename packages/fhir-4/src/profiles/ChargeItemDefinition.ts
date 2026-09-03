@@ -3,43 +3,43 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ChargeItemDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    applicability?: FHIR.BackboneElement[];
+    approvalDate?: string;
+    code?: string[] | FHIR.CodeableConcept;
+    contact?: FHIR.ContactDetail[];
     contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    title?: string;
+    copyright?: string;
+    date?: string;
     derivedFromUri?: string[];
+    description?: string;
+    effectivePeriod?: FHIR.Period;
+    experimental?: boolean;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    instance?: MaybeArray<string | FHIR.Reference>;
+    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    lastReviewDate?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     partOf?: any[];
+    propertyGroup?: FHIR.BackboneElement[];
+    publisher?: string;
     replaces?: any[];
     status?: string;
-    experimental?: boolean;
-    date?: string;
-    publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    description?: FHIR.markdown;
+    text?: FHIR.Narrative;
+    title?: string;
+    url?: string;
     useContext?: FHIR.UsageContext[];
-    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    copyright?: FHIR.markdown;
-    approvalDate?: string;
-    lastReviewDate?: string;
-    effectivePeriod?: FHIR.Period;
-    code?: string[] | FHIR.CodeableConcept;
-    instance?: MaybeArray<string | FHIR.Reference>;
-    applicability?: FHIR.BackboneElement[];
-    propertyGroup?: FHIR.BackboneElement[];
+    version?: string;
     [key: string]: any;
 };
 
@@ -52,6 +52,24 @@ export default function(props: Partial<ChargeItemDefinition_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.jurisdiction)) {
+        if (!Array.isArray(props.jurisdiction)) { props.jurisdiction = [props.jurisdiction]; }
+
+        resource.jurisdiction = props.jurisdiction.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/jurisdiction", x))
+        );
+
+        dt.ensureConceptText(resource.jurisdiction);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/chargeitem-billingcodes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.instance)) {

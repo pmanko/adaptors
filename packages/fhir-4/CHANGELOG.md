@@ -1,5 +1,210 @@
 # @openfn/language-fhir-4
 
+## 0.6.0 - 03 September 2026
+
+### Minor Changes
+
+- 96c6822: Add support for `tls` options in `state.configuration`
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 0.5.5 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 0.5.4 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 0.5.3 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 0.5.2 - 17 April 2026
+
+### Patch Changes
+
+- - Rebuild with latest generator
+  - Add basic type interfaces to docs
+
+## 0.5.1 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- a9b7597: Update dependencies (lodash)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 0.5.0 - 30 March 2026
+
+### Minor Changes
+
+- acb567b: Add new configuration: `authorization`, which allows the
+  Authorization header to be set directly
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 0.4.2 - 27 March 2026
+
+### Patch Changes
+
+- 028c62c: Significantly better error reporting from validation results
+- d179474: Fix an issue where array types are not properly mapped
+
+## 0.4.1 - 25 March 2026
+
+### Patch Changes
+
+- c5e2b2b: Fix an issue in validation issue reporting
+
+## 0.4.0 - 23 March 2026
+
+### Minor Changes
+
+- 51fdf24: When validation fails on upload, log nice error messages
+
+## 0.3.2 - 12 March 2026
+
+### Patch Changes
+
+- 317e3c7: Alphabetically sort generated props Correctly format generated types
+  with a space and a surrounding code block: '\`\`'
+
+## 0.3.1 - 06 March 2026
+
+### Patch Changes
+
+- Fix profiles and link some more valuemaps
+
+## 0.3.0 - 02 March 2026
+
+### Minor Changes
+
+- 355f383: Add a `createBundle` helper
+
+### Patch Changes
+
+- 3a9915b: When mapping coding values, also index on the display value. This is
+  useful for codings where the code is not intuitive, but the display value is.
+
+## 0.2.10 - 24 February 2026
+
+### Patch Changes
+
+- 213115b: Add `ensureConceptText` utility to datatypes
+- 6ef5351: Map more primitive types (eg, markdown -> string)
+
+## 0.2.9 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 0.2.8 - 24 February 2026
+
+### Patch Changes
+
+- 3c52750: Update coding builder to accept coding objects as a single argument
+- 81dd8bd: Default system key for mapped value in lookupValue
+
+## 0.2.7 - 09 February 2026
+
+### Patch Changes
+
+- d935dda: Update d.ts definition structure
+- a78d53e: Rebuild on latest generator (should be no behaviour differences)"
+
+## 0.2.6 - 30 January 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 0.2.5 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 0.2.4 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 0.2.3 - 04 November 2025
+
+### Patch Changes
+
+- 4e531fe: Fix mappings for `CodeableConcept`
+
+## 0.2.2 - 29 October 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 0.2.1 - 23 October 2025
+
+### Patch Changes
+
+- fccecdc: Sort generated `fhir` types alphabetically
+
+## 0.2.0 - 21 October 2025
+
+### Minor Changes
+
+- 2040fa4: Updated `datetimeregex` to correctly distinguish betwen datetime and
+  strings
+
+## 0.1.12 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 0.1.11 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 0.1.10 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 0.1.9 - 14 July 2025
 
 ### Patch Changes

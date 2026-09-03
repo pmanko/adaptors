@@ -3,53 +3,53 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ServiceRequest_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    instantiatesCanonical?: any[];
-    instantiatesUri?: string[];
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    replaces?: MaybeArray<string | FHIR.Reference>;
-    requisition?: string | FHIR.Identifier;
-    status?: string;
-    intent?: string;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    priority?: string;
-    doNotPerform?: boolean;
-    code?: string[] | FHIR.CodeableConcept;
-    orderDetail?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    quantity?: FHIR.Quantity | FHIR.Ratio | FHIR.Range;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    occurrence?: string | FHIR.Period | FHIR.Timing;
     asNeeded?: boolean | string[] | FHIR.CodeableConcept;
     authoredOn?: string;
-    requester?: string | FHIR.Reference;
-    performerType?: string[] | FHIR.CodeableConcept;
-    performer?: MaybeArray<string | FHIR.Reference>;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    bodySite?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    doNotPerform?: boolean;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    instantiatesCanonical?: any[];
+    instantiatesUri?: string[];
+    insurance?: MaybeArray<string | FHIR.Reference>;
+    intent?: string;
+    language?: string;
     locationCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     locationReference?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    occurrence?: string | FHIR.Period | FHIR.Timing;
+    orderDetail?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    patientInstruction?: string;
+    performer?: MaybeArray<string | FHIR.Reference>;
+    performerType?: string[] | FHIR.CodeableConcept;
+    priority?: string;
+    quantity?: FHIR.Quantity | FHIR.Ratio | FHIR.Range;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    insurance?: MaybeArray<string | FHIR.Reference>;
-    supportingInfo?: MaybeArray<string | FHIR.Reference>;
-    specimen?: MaybeArray<string | FHIR.Reference>;
-    bodySite?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    note?: FHIR.Annotation[];
-    patientInstruction?: string;
     relevantHistory?: MaybeArray<string | FHIR.Reference>;
+    replaces?: MaybeArray<string | FHIR.Reference>;
+    requester?: string | FHIR.Reference;
+    requisition?: string | FHIR.Identifier;
+    specimen?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    supportingInfo?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -76,6 +76,31 @@ export default function(props: Partial<ServiceRequest_Props>) {
 
     if (!_.isNil(props.requisition)) {
         resource.requisition = dt.identifier(props.requisition);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/servicerequest-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-code", props.code));
+        dt.ensureConceptText(resource.code);
+    }
+
+    if (!_.isNil(props.orderDetail)) {
+        if (!Array.isArray(props.orderDetail)) { props.orderDetail = [props.orderDetail]; }
+
+        resource.orderDetail = props.orderDetail.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/servicerequest-orderdetail", x)
+        ));
+
+        dt.ensureConceptText(resource.orderDetail);
     }
 
     if (!_.isNil(props.quantity)) {
@@ -105,14 +130,44 @@ export default function(props: Partial<ServiceRequest_Props>) {
         resource.requester = dt.reference(props.requester);
     }
 
+    if (!_.isNil(props.performerType)) {
+        resource.performerType = dt.concept(dt.lookupValue(
+            "http://terminology.hl7.org/ValueSet/action-participant-role",
+            props.performerType
+        ));
+
+        dt.ensureConceptText(resource.performerType);
+    }
+
     if (!_.isNil(props.performer)) {
         if (!Array.isArray(props.performer)) { props.performer = [props.performer]; }
         resource.performer = dt.reference(props.performer);
     }
 
+    if (!_.isNil(props.locationCode)) {
+        if (!Array.isArray(props.locationCode)) { props.locationCode = [props.locationCode]; }
+
+        resource.locationCode = props.locationCode.map((x) => dt.concept(dt.lookupValue(
+            "http://terminology.hl7.org/ValueSet/v3-ServiceDeliveryLocationRoleType",
+            x
+        )));
+
+        dt.ensureConceptText(resource.locationCode);
+    }
+
     if (!_.isNil(props.locationReference)) {
         if (!Array.isArray(props.locationReference)) { props.locationReference = [props.locationReference]; }
         resource.locationReference = dt.reference(props.locationReference);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {
@@ -133,6 +188,16 @@ export default function(props: Partial<ServiceRequest_Props>) {
     if (!_.isNil(props.specimen)) {
         if (!Array.isArray(props.specimen)) { props.specimen = [props.specimen]; }
         resource.specimen = dt.reference(props.specimen);
+    }
+
+    if (!_.isNil(props.bodySite)) {
+        if (!Array.isArray(props.bodySite)) { props.bodySite = [props.bodySite]; }
+
+        resource.bodySite = props.bodySite.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/body-site", x))
+        );
+
+        dt.ensureConceptText(resource.bodySite);
     }
 
     if (!_.isNil(props.relevantHistory)) {

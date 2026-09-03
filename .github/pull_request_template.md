@@ -13,12 +13,8 @@ Add technical details of what you've changed (and why).
 Please disclose how you've used AI in this work (it's cool, we just want to
 know!):
 
-- [ ] Code generation (copilot but not intellisense)
-- [ ] Learning or fact checking
-- [ ] Strategy / design
-- [ ] Optimisation / refactoring
-- [ ] Translation / spellchecking / doc gen
-- [ ] Other
+- [ ] I have used Claude Code
+- [ ] I have used another model
 - [ ] I have not used AI
 
 You can read more details in our
@@ -35,4 +31,6 @@ Before merging, the reviewer should check the following items:
 - [ ] Are there any unit tests?
 - [ ] Is there a changeset associated with this PR? Should there be? Note that
       dev only changes don't need a changeset.
+- [ ] If there is a changeset, was `pnpm run version` used to bump versions (not
+      `pnpm changeset version` directly)? This ensures changelog dates are stamped correctly.
 - [ ] Have you ticked a box under AI Usage?

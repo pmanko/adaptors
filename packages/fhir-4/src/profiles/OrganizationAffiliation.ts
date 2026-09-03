@@ -3,32 +3,32 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type OrganizationAffiliation_Props = {
+    active?: boolean;
+    code?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    endpoint?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
+    healthcareService?: MaybeArray<string | FHIR.Reference>;
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    location?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    active?: boolean;
-    period?: FHIR.Period;
+    network?: MaybeArray<string | FHIR.Reference>;
     organization?: string | FHIR.Reference;
     participatingOrganization?: string | FHIR.Reference;
-    network?: MaybeArray<string | FHIR.Reference>;
-    code?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    period?: FHIR.Period;
     specialty?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    location?: MaybeArray<string | FHIR.Reference>;
-    healthcareService?: MaybeArray<string | FHIR.Reference>;
     telecom?: FHIR.ContactPoint[];
-    endpoint?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -54,6 +54,26 @@ export default function(props: Partial<OrganizationAffiliation_Props>) {
     if (!_.isNil(props.network)) {
         if (!Array.isArray(props.network)) { props.network = [props.network]; }
         resource.network = dt.reference(props.network);
+    }
+
+    if (!_.isNil(props.code)) {
+        if (!Array.isArray(props.code)) { props.code = [props.code]; }
+
+        resource.code = props.code.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/organization-role", x))
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
+
+    if (!_.isNil(props.specialty)) {
+        if (!Array.isArray(props.specialty)) { props.specialty = [props.specialty]; }
+
+        resource.specialty = props.specialty.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/c80-practice-codes", x))
+        );
+
+        dt.ensureConceptText(resource.specialty);
     }
 
     if (!_.isNil(props.location)) {

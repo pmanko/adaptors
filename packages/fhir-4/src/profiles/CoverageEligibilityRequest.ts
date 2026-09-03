@@ -3,34 +3,34 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type CoverageEligibilityRequest_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
     contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    priority?: string[] | FHIR.CodeableConcept;
-    purpose?: string[];
-    patient?: string | FHIR.Reference;
-    serviced?: string | FHIR.Period;
     created?: string;
     enterer?: string | FHIR.Reference;
-    provider?: string | FHIR.Reference;
-    insurer?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     facility?: string | FHIR.Reference;
-    supportingInfo?: FHIR.BackboneElement[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     insurance?: FHIR.BackboneElement[];
+    insurer?: string | FHIR.Reference;
     item?: FHIR.BackboneElement[];
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    patient?: string | FHIR.Reference;
+    priority?: string[] | FHIR.CodeableConcept;
+    provider?: string | FHIR.Reference;
+    purpose?: string[];
+    serviced?: string | FHIR.Period;
+    status?: string;
+    supportingInfo?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -43,6 +43,14 @@ export default function(props: Partial<CoverageEligibilityRequest_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.priority)) {
+        resource.priority = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/process-priority", props.priority)
+        );
+
+        dt.ensureConceptText(resource.priority);
     }
 
     if (!_.isNil(props.patient)) {

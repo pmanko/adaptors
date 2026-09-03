@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type CareTeam_Props = {
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    managingOrganization?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     name?: string;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    period?: FHIR.Period;
+    note?: FHIR.Annotation[];
     participant?: FHIR.BackboneElement[];
+    period?: FHIR.Period;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    managingOrganization?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subject?: string | FHIR.Reference;
     telecom?: FHIR.ContactPoint[];
-    note?: FHIR.Annotation[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -42,6 +42,16 @@ export default function(props: Partial<CareTeam_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/care-team-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
     }
 
     if (!_.isNil(props.subject)) {
@@ -64,6 +74,16 @@ export default function(props: Partial<CareTeam_Props>) {
 
             resource.participant.push(_participant);
         }
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-findings", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

@@ -1,5 +1,5 @@
 import { expandReferences } from '@openfn/language-common/util';
-import * as util from './Utils';
+import * as util from './Utils.js';
 
 /**
  * State object
@@ -79,6 +79,7 @@ export function request(method, path, body, options = {}) {
 }
 
 export {
+  as,
   combine,
   cursor,
   dataPath,
@@ -91,9 +92,9 @@ export {
   fnIf,
   group,
   lastReferenceValue,
+  log,
   merge,
   scrubEmojis,
   sourceValue,
   util,
-  as
 } from '@openfn/language-common';

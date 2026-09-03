@@ -3,31 +3,31 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Account_Props = {
+    contained?: any[];
+    coverage?: FHIR.BackboneElement[];
+    description?: string;
+    extension?: FHIR.Extension[];
+    guarantor?: FHIR.BackboneElement[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    type?: string[] | FHIR.CodeableConcept;
     name?: string;
-    subject?: MaybeArray<string | FHIR.Reference>;
-    servicePeriod?: FHIR.Period;
-    coverage?: FHIR.BackboneElement[];
     owner?: string | FHIR.Reference;
-    description?: string;
-    guarantor?: FHIR.BackboneElement[];
     partOf?: string | FHIR.Reference;
+    servicePeriod?: FHIR.Period;
+    status?: string;
+    subject?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -40,6 +40,11 @@ export default function(props: Partial<Account_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/account-type", props.type));
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.subject)) {

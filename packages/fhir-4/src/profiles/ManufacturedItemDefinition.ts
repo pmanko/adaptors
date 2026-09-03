@@ -3,27 +3,27 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ManufacturedItemDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    manufacturedDoseForm?: string[] | FHIR.CodeableConcept;
-    unitOfPresentation?: string[] | FHIR.CodeableConcept;
-    manufacturer?: MaybeArray<string | FHIR.Reference>;
+    implicitRules?: string;
     ingredient?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    manufacturedDoseForm?: string[] | FHIR.CodeableConcept;
+    manufacturer?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     property?: FHIR.BackboneElement[];
+    status?: string;
+    text?: FHIR.Narrative;
+    unitOfPresentation?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -38,9 +38,37 @@ export default function(props: Partial<ManufacturedItemDefinition_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.manufacturedDoseForm)) {
+        resource.manufacturedDoseForm = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/manufactured-dose-form",
+            props.manufacturedDoseForm
+        ));
+
+        dt.ensureConceptText(resource.manufacturedDoseForm);
+    }
+
+    if (!_.isNil(props.unitOfPresentation)) {
+        resource.unitOfPresentation = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/unit-of-presentation",
+            props.unitOfPresentation
+        ));
+
+        dt.ensureConceptText(resource.unitOfPresentation);
+    }
+
     if (!_.isNil(props.manufacturer)) {
         if (!Array.isArray(props.manufacturer)) { props.manufacturer = [props.manufacturer]; }
         resource.manufacturer = dt.reference(props.manufacturer);
+    }
+
+    if (!_.isNil(props.ingredient)) {
+        if (!Array.isArray(props.ingredient)) { props.ingredient = [props.ingredient]; }
+
+        resource.ingredient = props.ingredient.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-codes", x))
+        );
+
+        dt.ensureConceptText(resource.ingredient);
     }
 
     if (!_.isNil(props.property)) {

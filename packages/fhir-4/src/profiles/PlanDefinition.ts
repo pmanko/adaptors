@@ -3,51 +3,51 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type PlanDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    name?: string;
-    title?: string;
-    subtitle?: string;
-    type?: string[] | FHIR.CodeableConcept;
-    status?: string;
-    experimental?: boolean;
-    subject?: string[] | FHIR.CodeableConcept | string | FHIR.Reference | any;
-    date?: string;
-    publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    description?: FHIR.markdown;
-    useContext?: FHIR.UsageContext[];
-    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    purpose?: FHIR.markdown;
-    usage?: string;
-    copyright?: FHIR.markdown;
-    approvalDate?: string;
-    lastReviewDate?: string;
-    effectivePeriod?: FHIR.Period;
-    topic?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    author?: FHIR.ContactDetail[];
-    editor?: FHIR.ContactDetail[];
-    reviewer?: FHIR.ContactDetail[];
-    endorser?: FHIR.ContactDetail[];
-    relatedArtifact?: FHIR.RelatedArtifact[];
-    library?: any[];
-    goal?: FHIR.BackboneElement[];
     action?: FHIR.BackboneElement[];
+    approvalDate?: string;
+    author?: FHIR.ContactDetail[];
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    copyright?: string;
+    date?: string;
+    description?: string;
+    editor?: FHIR.ContactDetail[];
+    effectivePeriod?: FHIR.Period;
+    endorser?: FHIR.ContactDetail[];
+    experimental?: boolean;
+    extension?: FHIR.Extension[];
+    goal?: FHIR.BackboneElement[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    lastReviewDate?: string;
+    library?: any[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: string;
+    publisher?: string;
+    purpose?: string;
+    relatedArtifact?: FHIR.RelatedArtifact[];
+    reviewer?: FHIR.ContactDetail[];
+    status?: string;
+    subject?: string[] | FHIR.CodeableConcept | string | FHIR.Reference | any;
+    subtitle?: string;
+    text?: FHIR.Narrative;
+    title?: string;
+    topic?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    type?: string[] | FHIR.CodeableConcept;
+    url?: string;
+    usage?: string;
+    useContext?: FHIR.UsageContext[];
+    version?: string;
     [key: string]: any;
 };
 
@@ -62,9 +62,37 @@ export default function(props: Partial<PlanDefinition_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/plan-definition-type", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.subject)) {
         delete resource.subject;
         dt.composite(resource, "subject", props.subject);
+    }
+
+    if (!_.isNil(props.jurisdiction)) {
+        if (!Array.isArray(props.jurisdiction)) { props.jurisdiction = [props.jurisdiction]; }
+
+        resource.jurisdiction = props.jurisdiction.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/jurisdiction", x))
+        );
+
+        dt.ensureConceptText(resource.jurisdiction);
+    }
+
+    if (!_.isNil(props.topic)) {
+        if (!Array.isArray(props.topic)) { props.topic = [props.topic]; }
+
+        resource.topic = props.topic.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/definition-topic", x))
+        );
+
+        dt.ensureConceptText(resource.topic);
     }
 
     if (!_.isNil(props.goal)) {

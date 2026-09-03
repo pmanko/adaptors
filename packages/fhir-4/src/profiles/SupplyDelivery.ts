@@ -3,31 +3,31 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type SupplyDelivery_Props = {
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    contained?: any[];
+    destination?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    patient?: string | FHIR.Reference;
-    type?: string[] | FHIR.CodeableConcept;
-    suppliedItem?: FHIR.BackboneElement;
     occurrence?: string | FHIR.Period | FHIR.Timing;
-    supplier?: string | FHIR.Reference;
-    destination?: string | FHIR.Reference;
+    partOf?: MaybeArray<string | FHIR.Reference>;
+    patient?: string | FHIR.Reference;
     receiver?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    suppliedItem?: FHIR.BackboneElement;
+    supplier?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -56,11 +56,19 @@ export default function(props: Partial<SupplyDelivery_Props>) {
         resource.patient = dt.reference(props.patient);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/supplydelivery-type|4.3.0", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.suppliedItem)) {
         let src = props.suppliedItem;
 
         let _suppliedItem = {
-            ...item
+            ...src
         };
 
         resource.suppliedItem = _suppliedItem;

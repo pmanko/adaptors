@@ -3,44 +3,44 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type EvidenceVariable_Props = {
+    actual?: boolean;
+    author?: FHIR.ContactDetail[];
+    category?: FHIR.BackboneElement[];
+    characteristic?: FHIR.BackboneElement[];
+    characteristicCombination?: string;
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    date?: string;
+    description?: string;
+    editor?: FHIR.ContactDetail[];
+    endorser?: FHIR.ContactDetail[];
+    extension?: FHIR.Extension[];
+    handling?: string;
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
     name?: string;
-    title?: string;
-    shortTitle?: string;
-    subtitle?: string;
-    status?: string;
-    date?: string;
-    description?: FHIR.markdown;
     note?: FHIR.Annotation[];
-    useContext?: FHIR.UsageContext[];
     publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    author?: FHIR.ContactDetail[];
-    editor?: FHIR.ContactDetail[];
-    reviewer?: FHIR.ContactDetail[];
-    endorser?: FHIR.ContactDetail[];
     relatedArtifact?: FHIR.RelatedArtifact[];
-    actual?: boolean;
-    characteristicCombination?: string;
-    characteristic?: FHIR.BackboneElement[];
-    handling?: string;
-    category?: FHIR.BackboneElement[];
+    reviewer?: FHIR.ContactDetail[];
+    shortTitle?: string;
+    status?: string;
+    subtitle?: string;
+    text?: FHIR.Narrative;
+    title?: string;
+    url?: string;
+    useContext?: FHIR.UsageContext[];
+    version?: string;
     [key: string]: any;
 };
 

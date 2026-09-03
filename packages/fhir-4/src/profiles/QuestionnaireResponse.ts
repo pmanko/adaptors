@@ -3,31 +3,31 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type QuestionnaireResponse_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: string | FHIR.Identifier;
+    author?: string | FHIR.Reference;
+    authored?: string;
     basedOn?: MaybeArray<string | FHIR.Reference>;
+    contained?: any[];
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: string | FHIR.Identifier;
+    implicitRules?: string;
+    item?: FHIR.BackboneElement[];
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     partOf?: MaybeArray<string | FHIR.Reference>;
     questionnaire?: any;
+    source?: string | FHIR.Reference;
     status?: string;
     subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    authored?: string;
-    author?: string | FHIR.Reference;
-    source?: string | FHIR.Reference;
-    item?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 

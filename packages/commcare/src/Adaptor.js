@@ -4,7 +4,7 @@ import { Blob } from 'node:buffer';
 import js2xmlparser from 'js2xmlparser';
 import xlsx from 'xlsx';
 
-import * as util from './Utils';
+import * as util from './Utils.js';
 /**
  * State object
  * @typedef {Object} CommcareHttpState
@@ -463,6 +463,7 @@ export {
   fn,
   fnIf,
   lastReferenceValue,
+  log,
   map,
   merge,
   sourceValue,

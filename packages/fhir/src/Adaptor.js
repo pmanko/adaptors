@@ -1,7 +1,7 @@
 import { execute as commonExecute } from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
 
-import * as util from './Utils';
+import * as util from './Utils.js';
 
 /**
  * State object
@@ -21,6 +21,7 @@ import * as util from './Utils';
  * @property {object} query - Query parameters for the request. Will be encoded into the URL
  * @property {object} errors - Map of errorCodes -> error messages, ie, `{ 404: 'Resource not found;' }`. Pass `false` to suppress errors for this code.
  * @property {number} timeout - Request timeout in ms. Default: 300 seconds.
+ * @property {object} tls - TLS/SSL options for this request. Overrides `configuration.tls`. See https://nodejs.org/api/tls.html#tlscreatesecurecontextoptions
  */
 
 /**
@@ -268,6 +269,7 @@ export function getClaim(claimId, params, callback = s => s) {
 
 export {
   alterState,
+  combine,
   dataPath,
   dataValue,
   dateFns,
@@ -277,6 +279,7 @@ export {
   fn,
   fnIf,
   lastReferenceValue,
+  log,
   merge,
   sourceValue,
 } from '@openfn/language-common';

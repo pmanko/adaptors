@@ -1,6 +1,6 @@
 import { execute as commonExecute } from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
-import { request, prepareNextState, authorize } from './Utils';
+import { request, prepareNextState, authorize } from './Utils.js';
 
 /**
  * State object
@@ -212,6 +212,7 @@ export {
   fn,
   fnIf,
   lastReferenceValue,
+  log,
   map,
   merge,
   sourceValue,

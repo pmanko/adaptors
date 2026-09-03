@@ -3,36 +3,36 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Invoice_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    cancelledReason?: string;
-    type?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    recipient?: string | FHIR.Reference;
-    date?: string;
-    participant?: FHIR.BackboneElement[];
-    issuer?: string | FHIR.Reference;
     account?: string | FHIR.Reference;
+    cancelledReason?: string;
+    contained?: any[];
+    date?: string;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    issuer?: string | FHIR.Reference;
+    language?: string;
     lineItem?: FHIR.BackboneElement[];
-    totalPriceComponent?: any[];
-    totalNet?: FHIR.Money;
-    totalGross?: FHIR.Money;
-    paymentTerms?: FHIR.markdown;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
+    participant?: FHIR.BackboneElement[];
+    paymentTerms?: string;
+    recipient?: string | FHIR.Reference;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    totalGross?: FHIR.Money;
+    totalNet?: FHIR.Money;
+    totalPriceComponent?: any[];
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -45,6 +45,11 @@ export default function(props: Partial<Invoice_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(props.type);
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.subject)) {

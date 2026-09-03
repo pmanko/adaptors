@@ -10,7 +10,7 @@
  * @returns Operation
  */
 export declare function read(reference: string): (state: any) => Promise<any>;
-declare type SearchQuery = {
+type SearchQuery = {
     /** k/v pairs. Can do stuff like given:contains=eve and [parameter]=ge2013-03-14. So the parameter can have criteria   */
     query?: Record<string, string>;
     filter?: Record<string, string>;
@@ -62,6 +62,7 @@ export declare function update(reference: string, resource: any): (state: any) =
  * Delete a single FHIR resource.
  * @public
  * @function
+ * @alias delete
  * @param {string} reference - The type and ID of the resource to delete, eg, `Patient/123`
  * @state response - the HTTP response returned by the server.
  * @example <caption>Delete a single Patient resource</caption>
@@ -85,6 +86,31 @@ export { _delete as delete };
  * @returns Operation
  */
 export declare function create(resource: any): (state: any) => Promise<any>;
+type CreateBundleOptions = {
+    name?: string;
+    type?: 'document' | 'message' | 'transaction' | 'transaction-response' | 'batch' | 'batch-response' | 'history' | 'searchset' | 'collection' | 'subscription-notification';
+};
+/**
+ * Generate a new bundle on state. Any existing bundle with the same name will be overwritten.
+ * @public
+ * @function
+ * @param {string} [options.name] - A name (key) for this bundle on state (defaults to `bundle`)
+ * @param {string} [options.type] - The type of this bundle. Accepts document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection | subscription-notification.
+ * @param {object} [props] - Assign any arbitrary properties to the bundle object
+ * @state (name) - the updated bundle
+ * @example <caption>Create a default bundle and add an item</caption>
+ * createBundle()
+ * addToBundle($.patient)
+ * @example <caption>Create a batch-type bundle called 'upload'</caption>
+ * createBundle({ name: 'upload', type: 'batch' })
+ * @example <caption>Create a bundle with custom properties</caption>
+ * createBundle({}, { timestamp: new Date().toISOString() }})
+ * * @example <caption>Create a named bundle and add an item</caption>
+ * createBundle({ name: 'upload')
+ * addToBundle($.patient, 'upload')
+ * @returns Operation
+ */
+export declare function createBundle(options: CreateBundleOptions, props?: any): (state: any) => any;
 /**
  * Add a resource to a bundle on state, using the `name` as the key (or `bundle` by default).
  * The resource will be upserted (via PUT).

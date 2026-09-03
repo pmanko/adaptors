@@ -3,44 +3,44 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MedicationDispense_Props = {
+    authorizingPrescription?: MaybeArray<string | FHIR.Reference>;
+    category?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    context?: string | FHIR.Reference;
+    daysSupply?: FHIR.Quantity;
+    destination?: string | FHIR.Reference;
+    detectedIssue?: MaybeArray<string | FHIR.Reference>;
+    dosageInstruction?: FHIR.Dosage[];
+    eventHistory?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    location?: string | FHIR.Reference;
+    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
+    note?: FHIR.Annotation[];
     partOf?: MaybeArray<string | FHIR.Reference>;
+    performer?: FHIR.BackboneElement[];
+    quantity?: FHIR.Quantity;
+    receiver?: MaybeArray<string | FHIR.Reference>;
     status?: string;
     statusReason?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
-    category?: string[] | FHIR.CodeableConcept;
-    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
     subject?: string | FHIR.Reference;
-    context?: string | FHIR.Reference;
-    supportingInformation?: MaybeArray<string | FHIR.Reference>;
-    performer?: FHIR.BackboneElement[];
-    location?: string | FHIR.Reference;
-    authorizingPrescription?: MaybeArray<string | FHIR.Reference>;
-    type?: string[] | FHIR.CodeableConcept;
-    quantity?: FHIR.Quantity;
-    daysSupply?: FHIR.Quantity;
-    whenPrepared?: string;
-    whenHandedOver?: string;
-    destination?: string | FHIR.Reference;
-    receiver?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    dosageInstruction?: FHIR.Dosage[];
     substitution?: FHIR.BackboneElement;
-    detectedIssue?: MaybeArray<string | FHIR.Reference>;
-    eventHistory?: MaybeArray<string | FHIR.Reference>;
+    supportingInformation?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
+    whenHandedOver?: string;
+    whenPrepared?: string;
     [key: string]: any;
 };
 
@@ -63,6 +63,14 @@ export default function(props: Partial<MedicationDispense_Props>) {
     if (!_.isNil(props.statusReason)) {
         delete resource.statusReason;
         dt.composite(resource, "statusReason", props.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        resource.category = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicationdispense-category", props.category)
+        );
+
+        dt.ensureConceptText(resource.category);
     }
 
     if (!_.isNil(props.medication)) {
@@ -106,6 +114,14 @@ export default function(props: Partial<MedicationDispense_Props>) {
         resource.authorizingPrescription = dt.reference(props.authorizingPrescription);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.destination)) {
         resource.destination = dt.reference(props.destination);
     }
@@ -119,7 +135,7 @@ export default function(props: Partial<MedicationDispense_Props>) {
         let src = props.substitution;
 
         let _substitution = {
-            ...item
+            ...src
         };
 
         resource.substitution = _substitution;

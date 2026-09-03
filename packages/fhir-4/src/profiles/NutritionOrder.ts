@@ -3,37 +3,37 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type NutritionOrder_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    allergyIntolerance?: MaybeArray<string | FHIR.Reference>;
     contained?: any[];
+    dateTime?: string;
+    encounter?: string | FHIR.Reference;
+    enteralFormula?: FHIR.BackboneElement;
+    excludeFoodModifier?: MaybeArray<string[] | FHIR.CodeableConcept>;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    foodPreferenceModifier?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    instantiates?: string[];
     instantiatesCanonical?: any[];
     instantiatesUri?: string[];
-    instantiates?: string[];
-    status?: string;
     intent?: string;
-    patient?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    dateTime?: string;
-    orderer?: string | FHIR.Reference;
-    allergyIntolerance?: MaybeArray<string | FHIR.Reference>;
-    foodPreferenceModifier?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    excludeFoodModifier?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    oralDiet?: FHIR.BackboneElement;
-    supplement?: FHIR.BackboneElement[];
-    enteralFormula?: FHIR.BackboneElement;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
+    oralDiet?: FHIR.BackboneElement;
+    orderer?: string | FHIR.Reference;
+    patient?: string | FHIR.Reference;
+    status?: string;
+    supplement?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -65,11 +65,31 @@ export default function(props: Partial<NutritionOrder_Props>) {
         resource.allergyIntolerance = dt.reference(props.allergyIntolerance);
     }
 
+    if (!_.isNil(props.foodPreferenceModifier)) {
+        if (!Array.isArray(props.foodPreferenceModifier)) { props.foodPreferenceModifier = [props.foodPreferenceModifier]; }
+
+        resource.foodPreferenceModifier = props.foodPreferenceModifier.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/encounter-diet", x))
+        );
+
+        dt.ensureConceptText(resource.foodPreferenceModifier);
+    }
+
+    if (!_.isNil(props.excludeFoodModifier)) {
+        if (!Array.isArray(props.excludeFoodModifier)) { props.excludeFoodModifier = [props.excludeFoodModifier]; }
+
+        resource.excludeFoodModifier = props.excludeFoodModifier.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/food-type", x))
+        );
+
+        dt.ensureConceptText(resource.excludeFoodModifier);
+    }
+
     if (!_.isNil(props.oralDiet)) {
         let src = props.oralDiet;
 
         let _oralDiet = {
-            ...item
+            ...src
         };
 
         resource.oralDiet = _oralDiet;
@@ -93,7 +113,7 @@ export default function(props: Partial<NutritionOrder_Props>) {
         let src = props.enteralFormula;
 
         let _enteralFormula = {
-            ...item
+            ...src
         };
 
         resource.enteralFormula = _enteralFormula;

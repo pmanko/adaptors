@@ -3,39 +3,39 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type SubstanceDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    status?: string[] | FHIR.CodeableConcept;
     classification?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    domain?: string[] | FHIR.CodeableConcept;
-    grade?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    description?: FHIR.markdown;
-    informationSource?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    manufacturer?: MaybeArray<string | FHIR.Reference>;
-    supplier?: MaybeArray<string | FHIR.Reference>;
-    moiety?: FHIR.BackboneElement[];
-    property?: FHIR.BackboneElement[];
-    molecularWeight?: FHIR.BackboneElement[];
-    structure?: FHIR.BackboneElement;
     code?: FHIR.BackboneElement[];
+    contained?: any[];
+    description?: string;
+    domain?: string[] | FHIR.CodeableConcept;
+    extension?: FHIR.Extension[];
+    grade?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    informationSource?: MaybeArray<string | FHIR.Reference>;
+    language?: string;
+    manufacturer?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    moiety?: FHIR.BackboneElement[];
+    molecularWeight?: FHIR.BackboneElement[];
     name?: FHIR.BackboneElement[];
+    note?: FHIR.Annotation[];
+    property?: FHIR.BackboneElement[];
     relationship?: FHIR.BackboneElement[];
     sourceMaterial?: FHIR.BackboneElement;
+    status?: string[] | FHIR.CodeableConcept;
+    structure?: FHIR.BackboneElement;
+    supplier?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    version?: string;
     [key: string]: any;
 };
 
@@ -48,6 +48,38 @@ export default function(props: Partial<SubstanceDefinition_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.status)) {
+        resource.status = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/publication-status", props.status)
+        );
+
+        dt.ensureConceptText(resource.status);
+    }
+
+    if (!_.isNil(props.classification)) {
+        if (!Array.isArray(props.classification)) { props.classification = [props.classification]; }
+        resource.classification = dt.concept(props.classification);
+        dt.ensureConceptText(resource.classification);
+    }
+
+    if (!_.isNil(props.domain)) {
+        resource.domain = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicinal-product-domain", props.domain)
+        );
+
+        dt.ensureConceptText(resource.domain);
+    }
+
+    if (!_.isNil(props.grade)) {
+        if (!Array.isArray(props.grade)) { props.grade = [props.grade]; }
+
+        resource.grade = props.grade.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-grade", x))
+        );
+
+        dt.ensureConceptText(resource.grade);
     }
 
     if (!_.isNil(props.informationSource)) {
@@ -111,7 +143,7 @@ export default function(props: Partial<SubstanceDefinition_Props>) {
         let src = props.structure;
 
         let _structure = {
-            ...item
+            ...src
         };
 
         resource.structure = _structure;
@@ -163,7 +195,7 @@ export default function(props: Partial<SubstanceDefinition_Props>) {
         let src = props.sourceMaterial;
 
         let _sourceMaterial = {
-            ...item
+            ...src
         };
 
         resource.sourceMaterial = _sourceMaterial;

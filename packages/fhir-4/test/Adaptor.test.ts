@@ -10,7 +10,8 @@ import {
   uploadBundle,
 } from '../src/Adaptor';
 
-import patient from './fixtures/Patient' assert { type: 'json' };
+import patient from './fixtures/Patient' with { type: 'json' };
+import { createBundle } from '../src/Adaptor.js';
 
 const testServer = enableMockClient('https://fhir.example.com');
 
@@ -209,6 +210,32 @@ describe('delete', () => {
     expect(err.code).to.equal('INVALID_RESOURCE_ID');
     expect(err.fix).to.be.ok;
     expect(err.description).to.be.ok;
+  });
+});
+
+describe('createBundle', () => {
+  it('should create a bundle', async () => {
+    const result = await createBundle({ name: 'upload', type: 'batch' })({});
+
+    expect(result.upload).to.eql({
+      resourceType: 'Bundle',
+      type: 'batch',
+      entry: [],
+    });
+  });
+
+  it('should create a bundle with extra props', async () => {
+    const result = await createBundle(
+      { type: 'batch' },
+      { identifier: { id: 'x' } },
+    )({});
+
+    expect(result.bundle).to.eql({
+      resourceType: 'Bundle',
+      type: 'batch',
+      entry: [],
+      identifier: { id: 'x' },
+    });
   });
 });
 

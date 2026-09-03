@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Specimen_Props = {
+    accessionIdentifier?: string | FHIR.Identifier;
+    collection?: FHIR.BackboneElement;
+    condition?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    container?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    accessionIdentifier?: string | FHIR.Identifier;
-    status?: string;
-    type?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    receivedTime?: string;
-    parent?: MaybeArray<string | FHIR.Reference>;
-    request?: MaybeArray<string | FHIR.Reference>;
-    collection?: FHIR.BackboneElement;
-    processing?: FHIR.BackboneElement[];
-    container?: FHIR.BackboneElement[];
-    condition?: MaybeArray<string[] | FHIR.CodeableConcept>;
     note?: FHIR.Annotation[];
+    parent?: MaybeArray<string | FHIR.Reference>;
+    processing?: FHIR.BackboneElement[];
+    receivedTime?: string;
+    request?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -46,6 +46,11 @@ export default function(props: Partial<Specimen_Props>) {
 
     if (!_.isNil(props.accessionIdentifier)) {
         resource.accessionIdentifier = dt.identifier(props.accessionIdentifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://terminology.hl7.org/ValueSet/v2-0487", props.type));
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.subject)) {
@@ -66,7 +71,7 @@ export default function(props: Partial<Specimen_Props>) {
         let src = props.collection;
 
         let _collection = {
-            ...item
+            ...src
         };
 
         resource.collection = _collection;
@@ -98,6 +103,16 @@ export default function(props: Partial<Specimen_Props>) {
 
             resource.container.push(_container);
         }
+    }
+
+    if (!_.isNil(props.condition)) {
+        if (!Array.isArray(props.condition)) { props.condition = [props.condition]; }
+
+        resource.condition = props.condition.map(
+            (x) => dt.concept(dt.lookupValue("http://terminology.hl7.org/ValueSet/v2-0493", x))
+        );
+
+        dt.ensureConceptText(resource.condition);
     }
 
     return resource;

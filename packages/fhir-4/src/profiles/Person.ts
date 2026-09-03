@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Person_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    active?: boolean;
+    address?: FHIR.Address[];
+    birthDate?: string;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    name?: FHIR.HumanName[];
-    telecom?: FHIR.ContactPoint[];
     gender?: string;
-    birthDate?: string;
-    address?: FHIR.Address[];
-    photo?: FHIR.Attachment;
-    managingOrganization?: string | FHIR.Reference;
-    active?: boolean;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
     link?: FHIR.BackboneElement[];
+    managingOrganization?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: FHIR.HumanName[];
+    photo?: FHIR.Attachment;
+    telecom?: FHIR.ContactPoint[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 

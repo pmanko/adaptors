@@ -3,43 +3,43 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Communication_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    about?: MaybeArray<string | FHIR.Reference>;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     contained?: any[];
+    encounter?: string | FHIR.Reference;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    inResponseTo?: MaybeArray<string | FHIR.Reference>;
     instantiatesCanonical?: any[];
     instantiatesUri?: string[];
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    inResponseTo?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    priority?: string;
+    language?: string;
     medium?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    subject?: string | FHIR.Reference;
-    topic?: string[] | FHIR.CodeableConcept;
-    about?: MaybeArray<string | FHIR.Reference>;
-    encounter?: string | FHIR.Reference;
-    sent?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    partOf?: MaybeArray<string | FHIR.Reference>;
+    payload?: FHIR.BackboneElement[];
+    priority?: string;
+    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    reasonReference?: MaybeArray<string | FHIR.Reference>;
     received?: string;
     recipient?: MaybeArray<string | FHIR.Reference>;
     sender?: string | FHIR.Reference;
-    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    reasonReference?: MaybeArray<string | FHIR.Reference>;
-    payload?: FHIR.BackboneElement[];
-    note?: FHIR.Annotation[];
+    sent?: string;
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    topic?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -69,8 +69,45 @@ export default function(props: Partial<Communication_Props>) {
         resource.inResponseTo = dt.reference(props.inResponseTo);
     }
 
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/communication-not-done-reason",
+            props.statusReason
+        ));
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/communication-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.medium)) {
+        if (!Array.isArray(props.medium)) { props.medium = [props.medium]; }
+
+        resource.medium = props.medium.map((x) => dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-ParticipationMode", x)
+        ));
+
+        dt.ensureConceptText(resource.medium);
+    }
+
     if (!_.isNil(props.subject)) {
         resource.subject = dt.reference(props.subject);
+    }
+
+    if (!_.isNil(props.topic)) {
+        resource.topic = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/communication-topic", props.topic)
+        );
+
+        dt.ensureConceptText(resource.topic);
     }
 
     if (!_.isNil(props.about)) {
@@ -89,6 +126,16 @@ export default function(props: Partial<Communication_Props>) {
 
     if (!_.isNil(props.sender)) {
         resource.sender = dt.reference(props.sender);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-findings", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

@@ -3,32 +3,32 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type EpisodeOfCare_Props = {
+    account?: MaybeArray<string | FHIR.Reference>;
+    careManager?: string | FHIR.Reference;
+    contained?: any[];
+    diagnosis?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    statusHistory?: FHIR.BackboneElement[];
-    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    diagnosis?: FHIR.BackboneElement[];
-    patient?: string | FHIR.Reference;
     managingOrganization?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    patient?: string | FHIR.Reference;
     period?: FHIR.Period;
     referralRequest?: MaybeArray<string | FHIR.Reference>;
-    careManager?: string | FHIR.Reference;
+    status?: string;
+    statusHistory?: FHIR.BackboneElement[];
     team?: MaybeArray<string | FHIR.Reference>;
-    account?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     [key: string]: any;
 };
 
@@ -55,6 +55,16 @@ export default function(props: Partial<EpisodeOfCare_Props>) {
 
             resource.statusHistory.push(_statusHistory);
         }
+    }
+
+    if (!_.isNil(props.type)) {
+        if (!Array.isArray(props.type)) { props.type = [props.type]; }
+
+        resource.type = props.type.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/episodeofcare-type", x))
+        );
+
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.diagnosis)) {

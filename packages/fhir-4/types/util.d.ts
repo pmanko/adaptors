@@ -2,7 +2,7 @@ export declare function assertValidResourceId(id: string): void;
 export declare function addAuth(options: any): any;
 export declare const prepareNextState: (state: any, response: any) => any;
 export declare const logResponse: (response: any, query: any) => any;
-declare type RequestOptions = {
+type RequestOptions = {
     headers?: Record<string, string>;
     body?: any;
     configuration: {
@@ -15,4 +15,7 @@ declare type RequestOptions = {
     query?: Record<string, string>;
 };
 export declare const request: (method: any, path: any, options: RequestOptions) => any;
+export declare function logValidationErrors(response: any, payload: any, logger?: Console): any;
+export declare function cleanResponseObject(state: any, response: any): any;
+export declare function sortBundle(entries: any[]): any[];
 export {};

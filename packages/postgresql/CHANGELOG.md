@@ -1,5 +1,173 @@
 # @openfn/language-postgresql
 
+## 8.1.3 - 03 September 2026
+
+### Patch Changes
+
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 8.1.2 - 30 June 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 8.1.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 8.1.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 8.0.5 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 8.0.4 - 07 April 2026
+
+### Patch Changes
+
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 8.0.3 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 8.0.2 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 8.0.1 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 8.0.0 - 30 December 2025
+
+### Major Changes
+
+- 9cc4290: - remove callbacks support in all functions
+
+  - add examples for parameterized query statements
+  - export `cursor` and `assert` from common
+  - export `util.format` from `pg-format`
+
+  ### Migration Guide
+
+  The callback parameter has been removed from all adaptor functions. If you
+  need to perform operations after a function completes, use promise chaining
+  with `.then()` instead.
+
+  #### Functions affected:
+
+  - `sql()`
+  - `insert()`
+  - `insertMany()`
+  - `upsert()`
+  - `upsertIf()`
+  - `upsertMany()`
+  - `describeTable()`
+  - `insertTable()`
+  - `modifyTable()`
+
+  #### Examples
+
+  **sql() - Before**
+
+  ```js
+  sql(
+    { text: 'SELECT * FROM users WHERE id = $1', values: [1] },
+    { writeSql: true },
+    state => {
+      console.log('Query completed:', state.data);
+      return state;
+    }
+  );
+  ```
+
+  **sql() - After**
+
+  ```js
+  sql(
+    { text: 'SELECT * FROM users WHERE id = $1', values: [1] },
+    { writeSql: true }
+  ).then(state => {
+    console.log('Query completed:', state.data);
+    return state;
+  });
+  ```
+
+## 7.0.7 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 7.0.6 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 7.0.5 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 7.0.4 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 7.0.3 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 7.0.2 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
+## 7.0.1 - 28 August 2025
+
+### Patch Changes
+
+- b7af59a: - Update `package.json` description to be LLM-readable
+
 ## 7.0.0 - 11 August 2025
 
 ### Major Changes

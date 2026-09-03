@@ -1,5 +1,5 @@
 import { expandReferences } from '@openfn/language-common/util';
-import * as util from './Utils';
+import * as util from './Utils.js';
 
 /**
  * Send an SMS
@@ -45,7 +45,7 @@ export function request(method, path, body, options = {}) {
       {
         body: resolvedData,
         ...resolvedoptions,
-      }
+      },
     );
 
     return util.prepareNextState(state, response);
@@ -76,15 +76,17 @@ export function request(method, path, body, options = {}) {
  */
 
 export {
+  combine,
+  cursor,
   dataPath,
   dataValue,
   dateFns,
-  cursor,
   each,
   field,
   fields,
   fn,
   lastReferenceValue,
+  log,
   merge,
   sourceValue,
 } from '@openfn/language-common';

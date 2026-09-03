@@ -1,5 +1,5 @@
-import { expandReferences, encode } from '@openfn/language-common/util';
-import * as util from './Utils';
+import { expandReferences } from '@openfn/language-common/util';
+import * as util from './Utils.js';
 
 /**
  * State object
@@ -70,7 +70,7 @@ import * as util from './Utils';
  *  filename: 'example.pdf',
  * });
  * @returns {Operation}
- * @state {HttpState}
+ * @state data - The parsed response body when `filename` is provided, otherwise a base64-encoded string.
  */
 export function generatePDF(htmlTemplateString, options) {
   return async state => {
@@ -164,6 +164,7 @@ export {
   fnIf,
   group,
   lastReferenceValue,
+  log,
   map,
   merge,
   scrubEmojis,

@@ -3,43 +3,43 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Encounter_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    statusHistory?: FHIR.BackboneElement[];
+    account?: MaybeArray<string | FHIR.Reference>;
+    appointment?: MaybeArray<string | FHIR.Reference>;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
     class?: FHIR.Coding;
     classHistory?: FHIR.BackboneElement[];
-    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    serviceType?: string[] | FHIR.CodeableConcept;
-    priority?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
+    contained?: any[];
+    diagnosis?: FHIR.BackboneElement[];
     episodeOfCare?: MaybeArray<string | FHIR.Reference>;
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    participant?: FHIR.BackboneElement[];
-    appointment?: MaybeArray<string | FHIR.Reference>;
-    period?: FHIR.Period;
+    extension?: FHIR.Extension[];
+    hospitalization?: FHIR.BackboneElement;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
     length?: FHIR.Duration;
+    location?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    partOf?: string | FHIR.Reference;
+    participant?: FHIR.BackboneElement[];
+    period?: FHIR.Period;
+    priority?: string[] | FHIR.CodeableConcept;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    diagnosis?: FHIR.BackboneElement[];
-    account?: MaybeArray<string | FHIR.Reference>;
-    hospitalization?: FHIR.BackboneElement;
-    location?: FHIR.BackboneElement[];
     serviceProvider?: string | FHIR.Reference;
-    partOf?: string | FHIR.Reference;
+    serviceType?: string[] | FHIR.CodeableConcept;
+    status?: string;
+    statusHistory?: FHIR.BackboneElement[];
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     [key: string]: any;
 };
 
@@ -68,6 +68,14 @@ export default function(props: Partial<Encounter_Props>) {
         }
     }
 
+    if (!_.isNil(props.class)) {
+        let src = props.class;
+        if (typeof src === 'string') {
+          src = dt.lookupValue('http://terminology.hl7.org/ValueSet/v3-ActEncounterCode', src);
+         }
+        resource.class = dt.coding(src);
+    }
+
     if (!_.isNil(props.classHistory)) {
         let src = props.classHistory;
         if (!Array.isArray(src)) { src = [src]; }
@@ -80,6 +88,32 @@ export default function(props: Partial<Encounter_Props>) {
 
             resource.classHistory.push(_classHistory);
         }
+    }
+
+    if (!_.isNil(props.type)) {
+        if (!Array.isArray(props.type)) { props.type = [props.type]; }
+
+        resource.type = props.type.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/encounter-type", x))
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.serviceType)) {
+        resource.serviceType = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/service-type", props.serviceType)
+        );
+
+        dt.ensureConceptText(resource.serviceType);
+    }
+
+    if (!_.isNil(props.priority)) {
+        resource.priority = dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-ActPriority", props.priority)
+        );
+
+        dt.ensureConceptText(resource.priority);
     }
 
     if (!_.isNil(props.subject)) {
@@ -115,6 +149,16 @@ export default function(props: Partial<Encounter_Props>) {
         resource.appointment = dt.reference(props.appointment);
     }
 
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/encounter-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
+    }
+
     if (!_.isNil(props.reasonReference)) {
         if (!Array.isArray(props.reasonReference)) { props.reasonReference = [props.reasonReference]; }
         resource.reasonReference = dt.reference(props.reasonReference);
@@ -143,7 +187,7 @@ export default function(props: Partial<Encounter_Props>) {
         let src = props.hospitalization;
 
         let _hospitalization = {
-            ...item
+            ...src
         };
 
         resource.hospitalization = _hospitalization;

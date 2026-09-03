@@ -3,27 +3,27 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Substance_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
     description?: string;
-    instance?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     ingredient?: FHIR.BackboneElement[];
+    instance?: FHIR.BackboneElement[];
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -36,6 +36,21 @@ export default function(props: Partial<Substance_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-code", props.code));
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.instance)) {

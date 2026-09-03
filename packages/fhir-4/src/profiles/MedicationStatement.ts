@@ -3,37 +3,37 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MedicationStatement_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     basedOn?: MaybeArray<string | FHIR.Reference>;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    statusReason?: MaybeArray<string[] | FHIR.CodeableConcept>;
     category?: string[] | FHIR.CodeableConcept;
-    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
-    subject?: string | FHIR.Reference;
+    contained?: any[];
     context?: string | FHIR.Reference;
-    effective?: string | FHIR.Period;
     dateAsserted?: string;
-    informationSource?: string | FHIR.Reference;
     derivedFrom?: MaybeArray<string | FHIR.Reference>;
+    dosage?: FHIR.Dosage[];
+    effective?: string | FHIR.Period;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    informationSource?: string | FHIR.Reference;
+    language?: string;
+    medication?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    partOf?: MaybeArray<string | FHIR.Reference>;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    dosage?: FHIR.Dosage[];
+    status?: string;
+    statusReason?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -56,6 +56,25 @@ export default function(props: Partial<MedicationStatement_Props>) {
     if (!_.isNil(props.partOf)) {
         if (!Array.isArray(props.partOf)) { props.partOf = [props.partOf]; }
         resource.partOf = dt.reference(props.partOf);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        if (!Array.isArray(props.statusReason)) { props.statusReason = [props.statusReason]; }
+
+        resource.statusReason = props.statusReason.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/reason-medication-status-codes", x)
+        ));
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        resource.category = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/medication-statement-category",
+            props.category
+        ));
+
+        dt.ensureConceptText(resource.category);
     }
 
     if (!_.isNil(props.medication)) {
@@ -83,6 +102,16 @@ export default function(props: Partial<MedicationStatement_Props>) {
     if (!_.isNil(props.derivedFrom)) {
         if (!Array.isArray(props.derivedFrom)) { props.derivedFrom = [props.derivedFrom]; }
         resource.derivedFrom = dt.reference(props.derivedFrom);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/condition-code", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

@@ -3,48 +3,48 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Procedure_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    instantiatesCanonical?: any[];
-    instantiatesUri?: string[];
+    asserter?: string | FHIR.Reference;
     basedOn?: MaybeArray<string | FHIR.Reference>;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
+    bodySite?: MaybeArray<string[] | FHIR.CodeableConcept>;
     category?: string[] | FHIR.CodeableConcept;
     code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    performed?: string | FHIR.Period | FHIR.Age | FHIR.Range;
-    recorder?: string | FHIR.Reference;
-    asserter?: string | FHIR.Reference;
-    performer?: FHIR.BackboneElement[];
-    location?: string | FHIR.Reference;
-    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    reasonReference?: MaybeArray<string | FHIR.Reference>;
-    bodySite?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    outcome?: string[] | FHIR.CodeableConcept;
-    report?: MaybeArray<string | FHIR.Reference>;
     complication?: MaybeArray<string[] | FHIR.CodeableConcept>;
     complicationDetail?: MaybeArray<string | FHIR.Reference>;
-    followUp?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    note?: FHIR.Annotation[];
+    contained?: any[];
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     focalDevice?: FHIR.BackboneElement[];
-    usedReference?: MaybeArray<string | FHIR.Reference>;
+    followUp?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    instantiatesCanonical?: any[];
+    instantiatesUri?: string[];
+    language?: string;
+    location?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    outcome?: string[] | FHIR.CodeableConcept;
+    partOf?: MaybeArray<string | FHIR.Reference>;
+    performed?: string | FHIR.Period | FHIR.Age | FHIR.Range;
+    performer?: FHIR.BackboneElement[];
+    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    reasonReference?: MaybeArray<string | FHIR.Reference>;
+    recorder?: string | FHIR.Reference;
+    report?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     usedCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    usedReference?: MaybeArray<string | FHIR.Reference>;
     [key: string]: any;
 };
 
@@ -67,6 +67,28 @@ export default function(props: Partial<Procedure_Props>) {
     if (!_.isNil(props.partOf)) {
         if (!Array.isArray(props.partOf)) { props.partOf = [props.partOf]; }
         resource.partOf = dt.reference(props.partOf);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/procedure-not-performed-reason",
+            props.statusReason
+        ));
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        resource.category = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-category", props.category)
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-code", props.code));
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.subject)) {
@@ -108,9 +130,37 @@ export default function(props: Partial<Procedure_Props>) {
         resource.location = dt.reference(props.location);
     }
 
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
+    }
+
     if (!_.isNil(props.reasonReference)) {
         if (!Array.isArray(props.reasonReference)) { props.reasonReference = [props.reasonReference]; }
         resource.reasonReference = dt.reference(props.reasonReference);
+    }
+
+    if (!_.isNil(props.bodySite)) {
+        if (!Array.isArray(props.bodySite)) { props.bodySite = [props.bodySite]; }
+
+        resource.bodySite = props.bodySite.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/body-site", x))
+        );
+
+        dt.ensureConceptText(resource.bodySite);
+    }
+
+    if (!_.isNil(props.outcome)) {
+        resource.outcome = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-outcome", props.outcome)
+        );
+
+        dt.ensureConceptText(resource.outcome);
     }
 
     if (!_.isNil(props.report)) {
@@ -118,9 +168,29 @@ export default function(props: Partial<Procedure_Props>) {
         resource.report = dt.reference(props.report);
     }
 
+    if (!_.isNil(props.complication)) {
+        if (!Array.isArray(props.complication)) { props.complication = [props.complication]; }
+
+        resource.complication = props.complication.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/condition-code", x))
+        );
+
+        dt.ensureConceptText(resource.complication);
+    }
+
     if (!_.isNil(props.complicationDetail)) {
         if (!Array.isArray(props.complicationDetail)) { props.complicationDetail = [props.complicationDetail]; }
         resource.complicationDetail = dt.reference(props.complicationDetail);
+    }
+
+    if (!_.isNil(props.followUp)) {
+        if (!Array.isArray(props.followUp)) { props.followUp = [props.followUp]; }
+
+        resource.followUp = props.followUp.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-followup", x))
+        );
+
+        dt.ensureConceptText(resource.followUp);
     }
 
     if (!_.isNil(props.focalDevice)) {
@@ -140,6 +210,16 @@ export default function(props: Partial<Procedure_Props>) {
     if (!_.isNil(props.usedReference)) {
         if (!Array.isArray(props.usedReference)) { props.usedReference = [props.usedReference]; }
         resource.usedReference = dt.reference(props.usedReference);
+    }
+
+    if (!_.isNil(props.usedCode)) {
+        if (!Array.isArray(props.usedCode)) { props.usedCode = [props.usedCode]; }
+
+        resource.usedCode = props.usedCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/device-kind", x))
+        );
+
+        dt.ensureConceptText(resource.usedCode);
     }
 
     return resource;

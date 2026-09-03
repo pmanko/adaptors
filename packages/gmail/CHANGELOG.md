@@ -1,5 +1,213 @@
 # @openfn/language-gmail
 
+## 3.2.1 - 03 September 2026
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 3.2.0 - 03 August 2026
+
+### Minor Changes
+
+- 7dd37fc: Add support for Google Service Account credential
+
+## 3.1.0 - 29 July 2026
+
+### Minor Changes
+
+- 59969c6: - Added a `fetchAttachments` option (default `true`) to
+  `getContentsFromMessages` and `getMessageById`.
+- fb55142: Added a `getMessageById` function to fetch a single message by its
+  Gmail API message id.
+
+## 3.0.0 - 08 July 2026
+
+### Major Changes
+
+- 327635a: - Automatically parse xlsx, json, xml and plaintext attachments
+  - Encode unknown or binary attachments to a base4 string
+
+## Migration Guide
+
+Some attachments are now auto-parsed into Javascript-friendly formats. Workflows
+which had previously done this work manually will need to make a change.
+
+For example, workflows loading JSON attachments in <3.0 might have loaded them
+like this:
+
+```
+const contents = [
+  'body',
+  {
+    type: 'file',
+    name: 'attachment',
+    file: /data.json/,
+  },
+];
+
+getContentsFromMessages({ query: $.query, contents });
+```
+
+And then manually parsed the file into JSON:
+
+```
+each($.data, (state) => {
+  state.attachment.content = JSON.parse(state.attachment.content)
+  return state;
+})
+```
+
+In version 3.0, you do not need to do this and should update your workflow code
+accordingly.
+
+Migration might be made easier by forcing the adaptor to parse to plain text
+format, regardless of the file type. In which case, set the `parseAs` flag on
+the content expression and the adaptor will behave just as it did before:
+
+```
+const contents = [
+  'body',
+  {
+    type: 'file',
+    name: 'attachment',
+    file: /data.json/,
+    parseAs: 'text'
+  },
+];
+
+getContentsFromMessages({ query: $.query, contents });
+```
+
+## 2.1.2 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 2.1.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 2.1.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 2.0.15 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 2.0.14 - 17 April 2026
+
+### Patch Changes
+
+- c226622: Update googleapis library
+
+## 2.0.13 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 2.0.12 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 2.0.11 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 2.0.10 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 2.0.9 - 26 January 2026
+
+### Patch Changes
+
+- a4bb56a: security fixes
+
+## 2.0.8 - 02 December 2025
+
+### Patch Changes
+
+- e8f7f2d: Security update
+
+## 2.0.7 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 2.0.6 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 2.0.5 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 2.0.4 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 2.0.3 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 2.0.2 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
+## 2.0.1 - 29 August 2025
+
+### Patch Changes
+
+- 0d7611c: Enhanced documentation in README.md
+
 ## 2.0.0 - 11 August 2025
 
 ### Major Changes
@@ -137,7 +345,6 @@
 - 01b4aa9: This patch includes breaking changes to the API - but since the
   adpator has only been released a couple of days we don't anticipate this
   affecting any users.
-
   - Removed the `userId` parameter from `getContentsFromMessages()`. Pass
     `options.email` instead.
   - Renamed `options.desiredContents` to `options.contents`

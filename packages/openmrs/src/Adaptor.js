@@ -3,7 +3,7 @@ import {
   composeNextState,
 } from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
-import { request, cleanPath, requestWithPagination } from './Utils';
+import { request, cleanPath, requestWithPagination } from './Utils.js';
 
 /**
  * Options to append to the request. Unless otherwise specified, options are appended to the URL as query parameters - see the [OpenMRS Docs](https://rest.openmrs.org/) for all supported parameters.
@@ -425,6 +425,7 @@ export {
   alterState,
   arrayToString,
   as,
+  combine,
   cursor,
   dataPath,
   dataValue,
@@ -435,6 +436,7 @@ export {
   fn,
   fnIf,
   lastReferenceValue,
+  log,
   map,
   merge,
   sourceValue,

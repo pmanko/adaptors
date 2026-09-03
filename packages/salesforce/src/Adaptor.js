@@ -1,11 +1,10 @@
 import {
   execute as commonExecute,
   composeNextState,
-  chunk,
 } from '@openfn/language-common';
 import { expandReferences, throwError } from '@openfn/language-common/util';
 import { Connection } from '@jsforce/jsforce-node';
-import * as util from './util';
+import * as util from './util.js';
 
 /**
  * @typedef {object} State
@@ -38,26 +37,19 @@ import * as util from './util';
  * @property references - History of all previous states
  **/
 
-/**
- * Options provided to the Salesforce bulk API request
- * @typedef {Object} BulkOptions
- * @public
- * @property {string} extIdField - External id field. Required for upsert.
- * @property {boolean} [allowNoOp=false] - Skipping bulk operation if no records.
- * @property {boolean} [failOnError=false] - Fail the operation on error.
- * @property {integer} [pollTimeout=240000] - Polling timeout in milliseconds.
- * @property {integer} [pollInterval=6000] - Polling interval in milliseconds.
- */
-
-/**
- * Options provided to the Salesforce bulk query API request
- * @typedef {Object} BulkQueryOptions
- * @public
- * @property {integer} [pollTimeout=90000] - Polling timeout in milliseconds.
- * @property {integer} [pollInterval=3000] - Polling interval in milliseconds.
- * */
-
 let connection = null;
+
+// Workaround for https://github.com/jsforce/jsforce/issues/1806
+// This should be removed after updating jsforce
+const workaroundBrokenTransport = connection => {
+  const transport = connection._transport;
+  const originalHttpRequest = transport.httpRequest.bind(transport);
+  transport.httpRequest = (req, options) => {
+    req.headers = { ...req.headers, connection: 'close' };
+    return originalHttpRequest(req, options);
+  };
+  return connection;
+};
 
 /**
  * Creates a connection to Salesforce using Basic Auth or OAuth.
@@ -77,10 +69,14 @@ const connect = async state => {
   if (configuration.access_token) {
     const { instance_url: instanceUrl, access_token: accessToken } =
       configuration;
-    connection = new Connection({ instanceUrl, accessToken, version });
+    connection = workaroundBrokenTransport(
+      new Connection({ instanceUrl, accessToken, version }),
+    );
   } else {
     const { loginUrl, username, password, securityToken } = configuration;
-    connection = new Connection({ loginUrl, version });
+    connection = workaroundBrokenTransport(
+      new Connection({ loginUrl, version }),
+    );
 
     console.info(`Attempting Salesforce connection for user: ${username}`);
 
@@ -88,10 +84,10 @@ const connect = async state => {
     await connection
       .login(username, securityToken ? password + securityToken : password)
       .catch(error => {
+        console.error(error.message);
         throwError('FAILED_AUTH', {
           fix: 'Check your username, password, and security token',
           message: `Failed to connect to salesforce as ${username}`,
-          error,
         });
       });
   }
@@ -101,7 +97,7 @@ const connect = async state => {
   }
 
   console.info(
-    `Successfully connected to Salesforce with ${connection._sessionType} session type`
+    `Successfully connected to Salesforce with ${connection._sessionType} session type`,
   );
   console.info(`API Version: ${connection.version}`);
 
@@ -130,217 +126,11 @@ export function execute(...operations) {
     return commonExecute(
       connect,
       util.loadAnyAscii,
-      ...operations
+      ...operations,
     )({
       ...initialState,
       ...state,
     });
-  };
-}
-
-/**
- * Create and execute a bulk job. Nested relationships will be flattened to dot notation automatically.
- * This function uses {@link https://sforce.co/4fDLJnk Bulk API},
- * which is subject to {@link https://sforce.co/4b6kn6z rate limits}.
- * @public
- *
- * @example <caption>Bulk insert</caption>
- * bulk(
- *   "Patient__c",
- *   "insert",
- *   (state) => state.patients.map((x) => ({ Age__c: x.age, Name: x.name })),
- *   { failOnError: true }
- * );
- * @example <caption>Bulk upsert</caption>
- * bulk(
- *   "vera__Beneficiary__c",
- *   "upsert",
- *   [
- *     {
- *       vera__Reporting_Period__c: 2023,
- *       vera__Geographic_Area__c: "Uganda",
- *       "vera__Indicator__r.vera__ExtId__c": 1001,
- *       vera__Result_UID__c: "1001_2023_Uganda",
- *     },
- *   ],
- *   { extIdField: "vera__Result_UID__c" }
- * );
- * @example <caption>Bulk upsert with a nested relationship</caption>
- * bulk(
- *   "vera__Beneficiary__c",
- *   "upsert",
- *   [
- *     {
- *       vera__Reporting_Period__c: 2023,
- *       "vera_Project": {
- *         "Metrics_ID__c": "jfh5LAnxu1i4na"
- *       }
- *     },
- *   ],
- *   { extIdField: "vera__Result_UID__c" }
- * );
- * @example <caption>Bulk update Account records using a lazy state reference</caption>
- * fn((state) => {
- *   state.accounts = state.data.map((a) => ({ Id: a.id, Name: a.name }));
- *   return state;
- * });
- * bulk("Account", "update", $.accounts, { failOnError: true });
- * @function
- * @param {string} sObjectName - API name of the sObject.
- * @param {string} operation - The bulk operation to be performed.Eg `insert`, `update` or `upsert`
- * @param {array} records - an array of records, or a function which returns an array.
- * @param {BulkOptions} [options] - Options to configure the request. In addition to these, you can pass any of the options supported by the {@link https://bit.ly/41tyvVU jsforce API}.
- * @state {SalesforceResultState}
- * @returns {Operation}
- */
-export function bulk(sObjectName, operation, records, options = {}) {
-  return state => {
-    const [
-      resolvedSObjectName,
-      resolvedOperation,
-      resolvedRecords,
-      resolvedOptions,
-    ] = expandReferences(state, sObjectName, operation, records, options);
-
-    const {
-      failOnError = false,
-      allowNoOp = false,
-      pollTimeout = 240000,
-      pollInterval = 6000,
-    } = resolvedOptions;
-
-    const flatRecords = util.removeNestings(resolvedRecords);
-    if (allowNoOp && flatRecords.length === 0) {
-      console.info(
-        `No items in ${resolvedSObjectName} array. Skipping bulk ${resolvedOperation} operation.`
-      );
-      return state;
-    }
-
-    if (flatRecords.length > 10000)
-      console.log('Your batch is bigger than 10,000 records; chunking...');
-
-    const chunkedBatches = chunk(flatRecords, 10000);
-
-    return Promise.all(
-      chunkedBatches.map(
-        chunkedBatch =>
-          new Promise((resolve, reject) => {
-            console.info(
-              `Creating bulk ${resolvedOperation} job for ${resolvedSObjectName} with ${chunkedBatch.length} records`
-            );
-
-            const job = connection.bulk.createJob(
-              resolvedSObjectName,
-              resolvedOperation,
-              resolvedOptions
-            );
-
-            job.on('error', err => reject(err));
-
-            console.info('Creating batch for job.');
-            var batch = job.createBatch();
-
-            console.info('Executing batch.');
-            batch.execute(chunkedBatch);
-
-            batch.on('error', async function (err) {
-              await job.close();
-              console.error('Request error:');
-              reject(err);
-            });
-
-            return batch
-              .on('queue', function (batchInfo) {
-                const batchId = batchInfo.id;
-                var batch = job.batch(batchId);
-                batch.poll(pollInterval, pollTimeout);
-              })
-              .then(async res => {
-                await job.close();
-                const errors = res
-                  .map((r, i) => ({ ...r, position: i + 1 }))
-                  .filter(item => {
-                    return !item.success;
-                  });
-
-                errors.forEach(err => {
-                  err[`${resolvedOptions.extIdField}`] =
-                    chunkedBatch[err.position - 1][resolvedOptions.extIdField];
-                });
-
-                if (failOnError && errors.length > 0) {
-                  console.error('Errors detected:');
-                  reject(JSON.stringify(errors, null, 2));
-                } else {
-                  console.log('Result : ' + JSON.stringify(res, null, 2));
-                  resolve(res);
-                }
-              });
-          })
-      )
-    ).then(results => {
-      const allResults = util.formatResults(results.flat());
-      console.log('Merging results arrays.');
-      return composeNextState(state, allResults);
-    });
-  };
-}
-/**
- * Execute an SOQL Bulk Query.
- * This function query large data sets and reduce the number of API requests.
- * `bulkQuery()` uses {@link https://sforce.co/4azgczz Bulk API v2.0 Query} which is available in API version 47.0 and later.
- * This API is subject to {@link https://sforce.co/4b6kn6z rate limits}.
- * @public
- * @example <caption>Bulk query patient records where "Health_ID__c" is equal to the value in "state.data.healthId"</caption>
- * bulkQuery(`SELECT Id FROM Patient__c WHERE Health_ID__c = '${$.data.healthId}'`);
- * @example <caption>Bulk query with custom polling options</caption>
- * bulkQuery(
- *   (state) =>
- *     `SELECT Id FROM Patient__c WHERE Health_ID__c = '${state.data.field1}'`,
- *   { pollTimeout: 10000, pollInterval: 6000 }
- * );
- * @function
- * @param {string} query - A query string.
- * @param {BulkQueryOptions} [options] - Options passed to the bulk api.
- * @state {SalesforceState}
- * @returns {Operation}
- */
-export function bulkQuery(query, options = {}) {
-  return async state => {
-    const [resolvedQuery, resolvedOptions] = expandReferences(
-      state,
-      query,
-      options
-    );
-
-    if (parseFloat(connection.version) < 47.0)
-      throw new Error('bulkQuery requires API version 47.0 and later');
-
-    const { pollTimeout = 90000, pollInterval = 3000 } = resolvedOptions;
-
-    console.log(`Executing query: ${resolvedQuery}`);
-
-    const queryJob = await connection.request({
-      method: 'POST',
-      url: `/services/data/v${connection.version}/jobs/query`,
-      body: JSON.stringify({
-        operation: 'query',
-        query: resolvedQuery,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const result = await util.pollJobResult(
-      connection,
-      queryJob,
-      pollInterval,
-      pollTimeout
-    );
-
-    return composeNextState(state, result);
   };
 }
 
@@ -375,7 +165,7 @@ export function create(sObjectName, records) {
     const [resolvedSObjectName, resolvedRecords] = expandReferences(
       state,
       sObjectName,
-      records
+      records,
     );
     util.assertNoNesting(resolvedRecords);
     console.info(`Creating ${resolvedSObjectName}`, resolvedRecords);
@@ -543,7 +333,7 @@ export function query(query, options) {
 
     if (resolvedQuery.includes('LIMIT') || resolvedQuery.includes('limit')) {
       console.warn(
-        'Warning: Query contains a LIMIT clause. We recommend using the `limit` option instead.'
+        'Warning: Query contains a LIMIT clause. We recommend using the `limit` option instead.',
       );
     }
 
@@ -558,7 +348,7 @@ export function query(query, options) {
     if (!response.done && fetchedRecords === maxRecords) {
       console.warn(
         `Warning: The default maximum number of items has been reached (${maxRecords}), but more items are available on the server. 
-         To download all available items, adjust limit to ${response.totalSize} or set limit to false`
+         To download all available items, adjust limit to ${response.totalSize} or set limit to false`,
       );
     }
     console.log('Fetched: ' + fetchedRecords);
@@ -605,7 +395,7 @@ export function upsert(sObjectName, externalId, records) {
       `Upserting ${resolvedSObjectName} with externalId`,
       resolvedExternalId,
       ':',
-      resolvedRecords
+      resolvedRecords,
     );
 
     return connection
@@ -649,7 +439,7 @@ export function update(sObjectName, records) {
     const [resolvedSObjectName, resolvedRecords] = expandReferences(
       state,
       sObjectName,
-      records
+      records,
     );
     util.assertNoNesting(resolvedRecords);
     console.info(`Updating ${resolvedSObjectName}`, resolvedRecords);
@@ -685,11 +475,11 @@ export function retrieve(sObjectName, id) {
     const [resolvedSObjectName, resolvedId] = expandReferences(
       state,
       sObjectName,
-      id
+      id,
     );
 
     console.log(
-      `Retrieving data for sObject '${resolvedSObjectName}' with Id '${resolvedId}'`
+      `Retrieving data for sObject '${resolvedSObjectName}' with Id '${resolvedId}'`,
     );
     return connection
       .sobject(resolvedSObjectName)
@@ -725,6 +515,7 @@ export {
   join,
   jsonValue,
   lastReferenceValue,
+  log,
   map,
   merge,
   referencePath,

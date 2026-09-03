@@ -1,5 +1,169 @@
 # @openfn/language-mysql
 
+## 4.1.3 - 03 September 2026
+
+### Patch Changes
+
+- 931a3fb: Update mysql2 to 3.23.1
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 4.1.2 - 30 June 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 4.1.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 4.1.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 4.0.6 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 4.0.5 - 07 April 2026
+
+### Patch Changes
+
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 4.0.4 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 4.0.3 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 4.0.2 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 4.0.1 - 02 December 2025
+
+### Patch Changes
+
+- 6aa9800: Security update
+
+## 4.0.0 - 02 December 2025
+
+### Major Changes
+
+- e6486ad: - Query results write to `state.data` instead of `state.response`,
+  for consistency with other adaptors
+
+  - Add support for prepared statements in `sql` function.
+
+  # Migration Guide:
+
+  Transitioning from `state.response` to `state.data`
+
+  ### Accessing Query Results
+
+  - **Old Way:** -
+    ```js
+    sql(state => `select id, name from patients limit 10`);
+    log($.response.body);
+    log($.response.fields);
+    ```
+  - **New Way:**
+    ```js
+    sql(state => `select id, name from patients limit 10`);
+    log($.data.result);
+    log($.data.fields);
+    ```
+
+  ### Use Prepared Statements
+
+  Use prepared statements to avoid SQL injection
+
+  **Un-Prepared SQL**
+
+  ```javascript
+  // Bad
+  sql(state => `select * from users where id =${state.data.userId};`);
+  // Potential SQL injection
+  ```
+
+  **Prepared SQL**
+
+  ```javascript
+  // Good
+  sql(`select * from users where id = ?;`, {
+    values: $.data.userId,
+  });
+  // Safe from SQL injection
+  ```
+
+## 3.0.6 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 3.0.5 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 3.0.4 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 3.0.3 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 3.0.2 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 3.0.1 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 3.0.0 - 21 July 2025
 
 ### Major Changes

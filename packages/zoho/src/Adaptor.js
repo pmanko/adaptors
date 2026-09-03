@@ -1,6 +1,6 @@
 import { execute as commonExecute } from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
-import { post } from './Client';
+import { post } from './Client.js';
 
 /**
  * Execute a sequence of operations.
@@ -51,7 +51,7 @@ export function addRow(db, table, rowData) {
       '/',
       db,
       '/',
-      table
+      table,
     );
 
     console.log('POST URL:');
@@ -67,15 +67,17 @@ export function addRow(db, table, rowData) {
 }
 
 export {
-  fn,
-  fnIf,
   alterState,
-  field,
-  fields,
-  sourceValue,
-  each,
-  merge,
+  combine,
   dataPath,
   dataValue,
+  each,
+  field,
+  fields,
+  fn,
+  fnIf,
   lastReferenceValue,
+  log,
+  merge,
+  sourceValue,
 } from '@openfn/language-common';

@@ -3,28 +3,28 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Ingredient_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    allergenicIndicator?: boolean;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: string | FHIR.Identifier;
-    status?: string;
     for?: MaybeArray<string | FHIR.Reference>;
-    role?: string[] | FHIR.CodeableConcept;
     function?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    allergenicIndicator?: boolean;
+    id?: string;
+    identifier?: string | FHIR.Identifier;
+    implicitRules?: string;
+    language?: string;
     manufacturer?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    role?: string[] | FHIR.CodeableConcept;
+    status?: string;
     substance?: FHIR.BackboneElement;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -41,6 +41,21 @@ export default function(props: Partial<Ingredient_Props>) {
     if (!_.isNil(props.for)) {
         if (!Array.isArray(props.for)) { props.for = [props.for]; }
         resource.for = dt.reference(props.for);
+    }
+
+    if (!_.isNil(props.role)) {
+        resource.role = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/ingredient-role", props.role));
+        dt.ensureConceptText(resource.role);
+    }
+
+    if (!_.isNil(props.function)) {
+        if (!Array.isArray(props.function)) { props.function = [props.function]; }
+
+        resource.function = props.function.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/ingredient-function", x))
+        );
+
+        dt.ensureConceptText(resource.function);
     }
 
     if (!_.isNil(props.manufacturer)) {
@@ -61,7 +76,7 @@ export default function(props: Partial<Ingredient_Props>) {
         let src = props.substance;
 
         let _substance = {
-            ...item
+            ...src
         };
 
         resource.substance = _substance;

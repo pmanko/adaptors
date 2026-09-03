@@ -3,32 +3,32 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type TestReport_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: string | FHIR.Identifier;
+    implicitRules?: string;
+    issued?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     name?: string;
-    status?: string;
-    testScript?: string | FHIR.Reference;
+    participant?: FHIR.BackboneElement[];
     result?: string;
     score?: number;
-    tester?: string;
-    issued?: string;
-    participant?: FHIR.BackboneElement[];
     setup?: FHIR.BackboneElement;
-    test?: FHIR.BackboneElement[];
+    status?: string;
     teardown?: FHIR.BackboneElement;
+    test?: FHIR.BackboneElement[];
+    testScript?: string | FHIR.Reference;
+    tester?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -64,7 +64,7 @@ export default function(props: Partial<TestReport_Props>) {
         let src = props.setup;
 
         let _setup = {
-            ...item
+            ...src
         };
 
         resource.setup = _setup;
@@ -88,7 +88,7 @@ export default function(props: Partial<TestReport_Props>) {
         let src = props.teardown;
 
         let _teardown = {
-            ...item
+            ...src
         };
 
         resource.teardown = _teardown;

@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ObservationDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    abnormalCodedValueSet?: string | FHIR.Reference;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
     code?: string[] | FHIR.CodeableConcept;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    permittedDataType?: string[];
-    multipleResultsAllowed?: boolean;
-    method?: string[] | FHIR.CodeableConcept;
-    preferredReportName?: string;
-    quantitativeDetails?: FHIR.BackboneElement;
-    qualifiedInterval?: FHIR.BackboneElement[];
-    validCodedValueSet?: string | FHIR.Reference;
-    normalCodedValueSet?: string | FHIR.Reference;
-    abnormalCodedValueSet?: string | FHIR.Reference;
+    contained?: any[];
     criticalCodedValueSet?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    method?: string[] | FHIR.CodeableConcept;
+    modifierExtension?: FHIR.Extension[];
+    multipleResultsAllowed?: boolean;
+    normalCodedValueSet?: string | FHIR.Reference;
+    permittedDataType?: string[];
+    preferredReportName?: string;
+    qualifiedInterval?: FHIR.BackboneElement[];
+    quantitativeDetails?: FHIR.BackboneElement;
+    text?: FHIR.Narrative;
+    validCodedValueSet?: string | FHIR.Reference;
     [key: string]: any;
 };
 
@@ -39,16 +39,42 @@ export default function(props: Partial<ObservationDefinition_Props>) {
         ...props
     };
 
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-codes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.method)) {
+        resource.method = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/observation-methods", props.method)
+        );
+
+        dt.ensureConceptText(resource.method);
     }
 
     if (!_.isNil(props.quantitativeDetails)) {
         let src = props.quantitativeDetails;
 
         let _quantitativeDetails = {
-            ...item
+            ...src
         };
 
         resource.quantitativeDetails = _quantitativeDetails;

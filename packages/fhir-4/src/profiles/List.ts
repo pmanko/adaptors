@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type List_Props = {
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    date?: string;
+    emptyReason?: string[] | FHIR.CodeableConcept;
+    encounter?: string | FHIR.Reference;
+    entry?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
+    meta?: FHIR.Meta;
     mode?: string;
-    title?: string;
-    code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    date?: string;
-    source?: string | FHIR.Reference;
-    orderedBy?: string[] | FHIR.CodeableConcept;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
-    entry?: FHIR.BackboneElement[];
-    emptyReason?: string[] | FHIR.CodeableConcept;
+    orderedBy?: string[] | FHIR.CodeableConcept;
+    source?: string | FHIR.Reference;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    title?: string;
     [key: string]: any;
 };
 
@@ -44,6 +44,14 @@ export default function(props: Partial<List_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/list-example-codes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.subject)) {
         resource.subject = dt.reference(props.subject);
     }
@@ -54,6 +62,11 @@ export default function(props: Partial<List_Props>) {
 
     if (!_.isNil(props.source)) {
         resource.source = dt.reference(props.source);
+    }
+
+    if (!_.isNil(props.orderedBy)) {
+        resource.orderedBy = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/list-order", props.orderedBy));
+        dt.ensureConceptText(resource.orderedBy);
     }
 
     if (!_.isNil(props.entry)) {
@@ -68,6 +81,14 @@ export default function(props: Partial<List_Props>) {
 
             resource.entry.push(_entry);
         }
+    }
+
+    if (!_.isNil(props.emptyReason)) {
+        resource.emptyReason = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/list-empty-reason", props.emptyReason)
+        );
+
+        dt.ensureConceptText(resource.emptyReason);
     }
 
     return resource;

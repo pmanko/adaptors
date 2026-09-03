@@ -3,35 +3,35 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type SupplyRequest_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    category?: string[] | FHIR.CodeableConcept;
-    priority?: string;
-    item?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
-    quantity?: FHIR.Quantity;
-    parameter?: FHIR.BackboneElement[];
-    occurrence?: string | FHIR.Period | FHIR.Timing;
     authoredOn?: string;
-    requester?: string | FHIR.Reference;
-    supplier?: MaybeArray<string | FHIR.Reference>;
-    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    reasonReference?: MaybeArray<string | FHIR.Reference>;
+    category?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
     deliverFrom?: string | FHIR.Reference;
     deliverTo?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    item?: string[] | FHIR.CodeableConcept | string | FHIR.Reference;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    occurrence?: string | FHIR.Period | FHIR.Timing;
+    parameter?: FHIR.BackboneElement[];
+    priority?: string;
+    quantity?: FHIR.Quantity;
+    reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    reasonReference?: MaybeArray<string | FHIR.Reference>;
+    requester?: string | FHIR.Reference;
+    status?: string;
+    supplier?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -44,6 +44,14 @@ export default function(props: Partial<SupplyRequest_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.category)) {
+        resource.category = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/supplyrequest-kind", props.category)
+        );
+
+        dt.ensureConceptText(resource.category);
     }
 
     if (!_.isNil(props.item)) {
@@ -77,6 +85,16 @@ export default function(props: Partial<SupplyRequest_Props>) {
     if (!_.isNil(props.supplier)) {
         if (!Array.isArray(props.supplier)) { props.supplier = [props.supplier]; }
         resource.supplier = dt.reference(props.supplier);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/supplyrequest-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

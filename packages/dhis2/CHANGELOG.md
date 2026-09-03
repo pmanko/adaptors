@@ -1,5 +1,155 @@
 # @openfn/language-dhis2
 
+## 8.3.1 - 03 September 2026
+
+### Patch Changes
+
+- 349781e: Security update
+- 19f1642: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 8.3.0 - 24 August 2026
+
+### Minor Changes
+
+- 3e3f2dd: Add `util.deriveUid()` function which derives a stable DHIS2 UID from
+  a seed string.
+
+### Patch Changes
+
+- Fix `tracker.import()` not sending its `strategy` argument.
+
+## 8.2.1 - 28 July 2026
+
+### Patch Changes
+
+- 8acf431: Update axios dependency
+
+## 8.2.0 - 30 June 2026
+
+### Minor Changes
+
+- 92e0b72: Add async option to `tracker.import`. Improve `tracker.export` docs
+  by adding a pagination example and linking pagination query parameters.
+
+### Patch Changes
+
+- 99b50c3: Fix: DHIS2 schema will not require username/password when using a PAT
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 8.1.1 - 27 May 2026
+
+### Patch Changes
+
+- 5276a86: Update ajv dependency
+- 632d536: Update axios dependency version
+- b2ceeb7: Update `qs` library
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 8.1.0 - 21 May 2026
+
+### Minor Changes
+
+- 71115af: export `combine` function from common
+- bf26881: export `log` function from common
+
+## 8.0.13 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 8.0.12 - 07 April 2026
+
+### Patch Changes
+
+- a9b7597: Update dependencies (lodash)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 8.0.11 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 8.0.10 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 8.0.9 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 8.0.8 - 26 January 2026
+
+### Patch Changes
+
+- a4bb56a: security fixes
+
+## 8.0.7 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 8.0.6 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 8.0.5 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 8.0.4 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 8.0.3 - 23 September 2025
+
+### Patch Changes
+
+- 24c5f07: Export `http` functions. This fixes the "http is not defined" error
+
+## 8.0.2 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 8.0.1 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 8.0.0 - 11 August 2025
 
 ### Major Changes
@@ -419,7 +569,6 @@ fn((state) => {
 ### Patch Changes
 
 - 222184d: remove Class Log and replaced
-
   - `Log.success` with `console.log`
   - `Log.warn` with `console.warn`
   - `Log.error` with `console.error`

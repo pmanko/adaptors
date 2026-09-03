@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type AdministrableProductDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    formOf?: MaybeArray<string | FHIR.Reference>;
     administrableDoseForm?: string[] | FHIR.CodeableConcept;
-    unitOfPresentation?: string[] | FHIR.CodeableConcept;
-    producedFrom?: MaybeArray<string | FHIR.Reference>;
-    ingredient?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
     device?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    formOf?: MaybeArray<string | FHIR.Reference>;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    ingredient?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    producedFrom?: MaybeArray<string | FHIR.Reference>;
     property?: FHIR.BackboneElement[];
     routeOfAdministration?: FHIR.BackboneElement[];
+    status?: string;
+    text?: FHIR.Narrative;
+    unitOfPresentation?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -46,9 +46,37 @@ export default function(props: Partial<AdministrableProductDefinition_Props>) {
         resource.formOf = dt.reference(props.formOf);
     }
 
+    if (!_.isNil(props.administrableDoseForm)) {
+        resource.administrableDoseForm = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/administrable-dose-form",
+            props.administrableDoseForm
+        ));
+
+        dt.ensureConceptText(resource.administrableDoseForm);
+    }
+
+    if (!_.isNil(props.unitOfPresentation)) {
+        resource.unitOfPresentation = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/unit-of-presentation",
+            props.unitOfPresentation
+        ));
+
+        dt.ensureConceptText(resource.unitOfPresentation);
+    }
+
     if (!_.isNil(props.producedFrom)) {
         if (!Array.isArray(props.producedFrom)) { props.producedFrom = [props.producedFrom]; }
         resource.producedFrom = dt.reference(props.producedFrom);
+    }
+
+    if (!_.isNil(props.ingredient)) {
+        if (!Array.isArray(props.ingredient)) { props.ingredient = [props.ingredient]; }
+
+        resource.ingredient = props.ingredient.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-codes", x))
+        );
+
+        dt.ensureConceptText(resource.ingredient);
     }
 
     if (!_.isNil(props.device)) {

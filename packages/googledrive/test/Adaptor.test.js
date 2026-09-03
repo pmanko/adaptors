@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { google } from 'googleapis';
-import { execute, create, get, update } from '../src';
+import { execute, create, get, update, list } from '../src/index.js';
 
-describe('Google Drive Adapter', () => {
+describe('Google Drive Adaptor', () => {
   let sandbox;
   let mockDrive;
   let mockFiles;
@@ -24,6 +24,26 @@ describe('Google Drive Adapter', () => {
       update: sandbox
         .stub()
         .resolves({ data: { id: 'file123', name: 'updated.txt' } }),
+      list: sandbox.stub().resolves({
+        data: {
+          files: [
+            {
+              id: 'file123',
+              name: 'test.txt',
+              mimeType: 'text/plain',
+              createdTime: '2024-01-01T00:00:00.000Z',
+              modifiedTime: '2024-01-01T00:00:00.000Z',
+            },
+            {
+              id: 'file456',
+              name: 'test2.txt',
+              mimeType: 'text/plain',
+              createdTime: '2024-01-02T00:00:00.000Z',
+              modifiedTime: '2024-01-02T00:00:00.000Z',
+            },
+          ],
+        },
+      }),
     };
     mockDrive = { files: mockFiles };
     sandbox.stub(google, 'drive').returns(mockDrive);
@@ -56,7 +76,7 @@ describe('Google Drive Adapter', () => {
       //Expected 2 calls: one for metadata and one for content
       expect(mockFiles.get.calledTwice).to.be.true;
       expect(result.data.content).to.equal(
-        Buffer.from('file content').toString('base64')
+        Buffer.from('file content').toString('base64'),
       );
     });
   });
@@ -71,6 +91,107 @@ describe('Google Drive Adapter', () => {
       const result = await execute(update(fileId, content, fileName))(state);
       expect(mockFiles.update.calledOnce).to.be.true;
       expect(result.data).to.have.property('name', 'updated.txt');
+    });
+  });
+
+  describe('list()', () => {
+    it('should list files successfully with folderId', async () => {
+      const state = { configuration: { access_token: 'mockToken' } };
+
+      const result = await execute(list('folder123'))(state);
+
+      expect(mockFiles.list.calledOnce).to.be.true;
+      expect(result.data).to.be.an('array').with.lengthOf(2);
+      expect(result.data[0]).to.have.property('id', 'file123');
+      expect(result.data[0]).to.have.property('name', 'test.txt');
+    });
+
+    it('should list files with folderId option', async () => {
+      const state = { configuration: { access_token: 'mockToken' } };
+
+      const result = await execute(list('folder123'))(state);
+      expect(mockFiles.list.calledOnce).to.be.true;
+
+      const callArgs = mockFiles.list.getCall(0).args[0];
+      expect(callArgs.q).to.include("'folder123' in parents");
+      expect(result.data).to.be.an('array');
+    });
+
+    it('should throw an error when folderId is missing', async () => {
+      const state = { configuration: { access_token: 'mockToken' } };
+
+      try {
+        await execute(list())(state);
+        expect.fail('Should have thrown an error');
+      } catch (error) {
+        expect(error.message).to.include('folderId is required');
+      }
+    });
+
+    it('should throw an error when folderId is not a string', async () => {
+      const state = { configuration: { access_token: 'mockToken' } };
+
+      try {
+        await execute(list({ folderId: 123 }))(state);
+        expect.fail('Should have thrown an error');
+      } catch (error) {
+        expect(error.message).to.include('folderId is required');
+      }
+    });
+
+    it('should throw an error when folderId is null', async () => {
+      const state = { configuration: { access_token: 'mockToken' } };
+
+      try {
+        await execute(list(null))(state);
+        expect.fail('Should have thrown an error');
+      } catch (error) {
+        expect(error.message).to.include('folderId is required');
+      }
+    });
+  });
+
+  describe('service account auth', () => {
+    const serviceAccountState = {
+      configuration: {
+        private_key:
+          '-----BEGIN RSA PRIVATE KEY-----\nMOCK_KEY\n-----END RSA PRIVATE KEY-----',
+        client_email: 'service@project-id.iam.gserviceaccount.com',
+      },
+    };
+
+    it('uses JWT auth when private_key and client_email are provided', async () => {
+      const mockJwt = { authorize: sandbox.stub().resolves() };
+      const jwtStub = sandbox.stub(google.auth, 'JWT').returns(mockJwt);
+
+      const content = Buffer.from('file content').toString('base64');
+      await execute(create(content, 'test.txt'))(serviceAccountState);
+
+      expect(jwtStub.calledOnce).to.be.true;
+      const jwtArgs = jwtStub.getCall(0).args[0];
+      expect(jwtArgs.email).to.equal(
+        'service@project-id.iam.gserviceaccount.com',
+      );
+      expect(jwtArgs.scopes).to.deep.equal([
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'openid',
+      ]);
+      expect(mockFiles.create.calledOnce).to.be.true;
+    });
+
+    it('does not call OAuth2 when service account credentials are used', async () => {
+      const mockJwt = { authorize: sandbox.stub().resolves() };
+      const jwtStub = sandbox.stub(google.auth, 'JWT').returns(mockJwt);
+      const oauth2Spy = sandbox.spy(google.auth, 'OAuth2');
+
+      const result = await execute(list('folder123'))(serviceAccountState);
+
+      expect(jwtStub.calledOnce).to.be.true;
+      expect(oauth2Spy.called).to.be.false;
+      expect(result.data).to.be.an('array').with.lengthOf(2);
     });
   });
 });

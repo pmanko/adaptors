@@ -3,42 +3,42 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type CommunicationRequest_Props = {
+    about?: MaybeArray<string | FHIR.Reference>;
+    authoredOn?: string;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    contained?: any[];
+    doNotPerform?: boolean;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    groupIdentifier?: string | FHIR.Identifier;
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    replaces?: MaybeArray<string | FHIR.Reference>;
-    groupIdentifier?: string | FHIR.Identifier;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
-    category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    priority?: string;
-    doNotPerform?: boolean;
     medium?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    subject?: string | FHIR.Reference;
-    about?: MaybeArray<string | FHIR.Reference>;
-    encounter?: string | FHIR.Reference;
-    payload?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
     occurrence?: string | FHIR.Period;
-    authoredOn?: string;
-    requester?: string | FHIR.Reference;
-    recipient?: MaybeArray<string | FHIR.Reference>;
-    sender?: string | FHIR.Reference;
+    payload?: FHIR.BackboneElement[];
+    priority?: string;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
+    recipient?: MaybeArray<string | FHIR.Reference>;
+    replaces?: MaybeArray<string | FHIR.Reference>;
+    requester?: string | FHIR.Reference;
+    sender?: string | FHIR.Reference;
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -65,6 +65,31 @@ export default function(props: Partial<CommunicationRequest_Props>) {
 
     if (!_.isNil(props.groupIdentifier)) {
         resource.groupIdentifier = dt.identifier(props.groupIdentifier);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(props.statusReason);
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/communication-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.medium)) {
+        if (!Array.isArray(props.medium)) { props.medium = [props.medium]; }
+
+        resource.medium = props.medium.map((x) => dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-ParticipationMode", x)
+        ));
+
+        dt.ensureConceptText(resource.medium);
     }
 
     if (!_.isNil(props.subject)) {
@@ -110,6 +135,16 @@ export default function(props: Partial<CommunicationRequest_Props>) {
 
     if (!_.isNil(props.sender)) {
         resource.sender = dt.reference(props.sender);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-ActReason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

@@ -3,10 +3,10 @@ import { parse } from 'csv-parse';
 import { Readable } from 'node:stream';
 
 import { request } from 'undici';
-import dateFns from 'date-fns';
+import * as dateFns from 'date-fns';
 import _ from 'lodash';
 
-import { expandReferences, parseDate } from './util';
+import { expandReferences, parseDate } from './util/index.js';
 
 const schemaCache = {};
 
@@ -80,7 +80,7 @@ export function fn(func) {
 }
 
 /**
- * A custom operation that will only execute the function if the condition returns true
+ * Execute a function only when the condition returns true
  * @public
  * @function
  * @example
@@ -352,11 +352,9 @@ export function combine(...operations) {
   return state => {
     return operations.reduce((state, operation) => {
       if (state.then) {
-        return state.then(state => {
-          return { ...state, ...operation(state) };
-        });
+        return state.then(state => operation({ ...state }));
       } else {
-        return { ...state, ...operation(state) };
+        return operation({ ...state });
       }
     }, state);
   };
@@ -459,10 +457,10 @@ export function group(arrayOfObjects, keyPath, callback = s => s) {
     const [resolvedArray, resolvedKeyPath] = expandReferences(
       state,
       arrayOfObjects,
-      keyPath
+      keyPath,
     );
     const results = _.groupBy(resolvedArray, item =>
-      _.get(item, resolvedKeyPath)
+      _.get(item, resolvedKeyPath),
     );
     return callback({ ...state, data: _.omit(results, [undefined]) });
   };
@@ -576,7 +574,7 @@ export function splitKeys(obj, keys) {
 
       return [{ ...keep, [key]: value }, split];
     },
-    [{}, {}]
+    [{}, {}],
   );
 }
 
@@ -597,7 +595,7 @@ export function scrubEmojis(text, replacementChars) {
     console.warn(
       'Removing characters from a string may create injection vulnerabilities;',
       "It's better to replace than remove.",
-      'See https://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters'
+      'See https://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters',
     );
   }
 
@@ -678,13 +676,13 @@ export function parseCsv(csvData, parsingOptions = {}, callback) {
     const [resolvedCsvData, resolvedParsingOptions] = expandReferences(
       state,
       csvData,
-      parsingOptions
+      parsingOptions,
     );
 
     const filteredOptions = Object.fromEntries(
       Object.entries(resolvedParsingOptions).filter(
-        ([key]) => key in defaultOptions
-      )
+        ([key]) => key in defaultOptions,
+      ),
     );
 
     const options = { ...defaultOptions, ...filteredOptions };
@@ -752,11 +750,11 @@ const getAjvVersion = async schema => {
 };
 
 /**
- * Validate against a JSON schema. Any erors are written to an array at `state.validationErrors`.
+ * Validate against a JSON schema. Any errors are written to an array at `state.validationErrors`.
  * Schema can be passed directly, loaded as a JSON path from state, or loaded from a URL
  * Data can be passed directly or loaded as a JSON path from state.
  * By default, schema is loaded from `state.schema` and data from `state.data`.
- * @pubic
+ * @public
  * @function
  * @param {string|object} schema - The schema, path or URL to validate against
  * @param {string|object} data - The data or path to validate
@@ -861,7 +859,7 @@ export function cursor(value, options = {}) {
     const [resolvedValue, resolvedOptions] = expandReferences(
       state,
       value,
-      optionsWithoutFormat
+      optionsWithoutFormat,
     );
 
     const {
@@ -889,7 +887,7 @@ export function cursor(value, options = {}) {
           : // If no custom formatter is provided,
             // Log the converted date in a very international, human-friendly format
             // See https://date-fns.org/v3.6.0/docs/format
-            dateFns.format(date, 'HH:MM d MMM yyyy (OOO)');
+            dateFns.format(date, 'HH:mm d MMM yyyy (OOO)');
 
         console.log(`Setting ${cursorKey} "${cursor}" to: ${formatted}`);
         return state;
@@ -917,13 +915,13 @@ export function assert(expression, errorMessage) {
     const [resolvedValue, resolvedErrorMessage] = expandReferences(
       state,
       expression,
-      errorMessage
+      errorMessage,
     );
 
     if (!resolvedValue) {
       throw new Error(
         resolvedErrorMessage ||
-          `assertion statement failed with ${resolvedValue}`
+          `assertion statement failed with ${resolvedValue}`,
       );
     }
 

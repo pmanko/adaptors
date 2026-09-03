@@ -3,37 +3,37 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Coverage_Props = {
+    beneficiary?: string | FHIR.Reference;
+    class?: FHIR.BackboneElement[];
+    contained?: any[];
+    contract?: MaybeArray<string | FHIR.Reference>;
+    costToBeneficiary?: FHIR.BackboneElement[];
+    dependent?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    type?: string[] | FHIR.CodeableConcept;
+    network?: string;
+    order?: number;
+    payor?: MaybeArray<string | FHIR.Reference>;
+    period?: FHIR.Period;
     policyHolder?: string | FHIR.Reference;
+    relationship?: string[] | FHIR.CodeableConcept;
+    status?: string;
+    subrogation?: boolean;
     subscriber?: string | FHIR.Reference;
     subscriberId?: string;
-    beneficiary?: string | FHIR.Reference;
-    dependent?: string;
-    relationship?: string[] | FHIR.CodeableConcept;
-    period?: FHIR.Period;
-    payor?: MaybeArray<string | FHIR.Reference>;
-    class?: FHIR.BackboneElement[];
-    order?: number;
-    network?: string;
-    costToBeneficiary?: FHIR.BackboneElement[];
-    subrogation?: boolean;
-    contract?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -48,6 +48,11 @@ export default function(props: Partial<Coverage_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/coverage-type", props.type));
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.policyHolder)) {
         resource.policyHolder = dt.reference(props.policyHolder);
     }
@@ -58,6 +63,14 @@ export default function(props: Partial<Coverage_Props>) {
 
     if (!_.isNil(props.beneficiary)) {
         resource.beneficiary = dt.reference(props.beneficiary);
+    }
+
+    if (!_.isNil(props.relationship)) {
+        resource.relationship = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/subscriber-relationship", props.relationship)
+        );
+
+        dt.ensureConceptText(resource.relationship);
     }
 
     if (!_.isNil(props.payor)) {

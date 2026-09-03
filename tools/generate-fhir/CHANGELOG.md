@@ -1,5 +1,98 @@
 # @openfn/generate-fhir
 
+## 0.7.8
+
+### Minor Changes
+
+Add support for primitive extension properties (ie. `_birthTime`)
+
+## 0.7.8
+
+### Patch Changes
+
+- Generate typedefs for core data types
+
+## 0.7.7
+
+### Patch Changes
+
+- d179474: Ensure that value mapping works properly for array types
+
+## 0.7.6
+
+### Patch Changes
+
+- When generating schemas, handle version suffixes on extension names
+
+## 0.7.5
+
+### Patch Changes
+
+- When mapping property extensions, ensure that reference types get mapped
+
+## 0.7.4
+
+### Patch Changes
+
+- 317e3c7: Alphabetically sort generated props Correctly format generated types
+  with a space and a surrounding code block: '``'
+
+## 0.7.3
+
+### Patch Changes
+
+- Properly generate profile urls automatically
+- Fix value mappings for top level codeable concepts
+
+## 0.7.2
+
+### Patch Changes
+
+- 7ae2a7a: - Fix a docs issue for addToBundle
+  - Fix encounter.period (and other props) which report "item is not defined"
+
+## 0.7.1
+
+- Fix an issue where a singleton prop with a typedef would throw an error (item
+  is not defined)
+
+## 0.7.0
+
+- Support mapping extensions to simple properties
+- Temporary fix to extensions to basic datatypes (date)
+
+## 0.6.0
+
+Enable mapping of valuesets
+
+## 0.4.2
+
+### Minor Changes
+
+Restore code to generate typescript adaptors from a custom IG, important and
+referencing a base spec (eg, fhir-4)
+
+reference implementation: fhir-eswatini
+
+## 0.4.2
+
+### Patch Changes
+
+- 4e531fe: Fix mappings for `CodeableConcept`
+
+## 0.4.1
+
+### Patch Changes
+
+- fccecdc: Sort generated `fhir` types alphabetically
+
+## 0.4.0
+
+### Minor Changes
+
+- 2040fa4: Updated `datetimeregex` to correctly distinguish betwen datetime and
+  strings
+
 ## 0.3.0
 
 - Generate Typescipt adaptor

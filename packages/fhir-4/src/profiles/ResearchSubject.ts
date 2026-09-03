@@ -3,28 +3,28 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ResearchSubject_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    actualArm?: string;
+    assignedArm?: string;
+    consent?: string | FHIR.Reference;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    period?: FHIR.Period;
-    study?: string | FHIR.Reference;
+    implicitRules?: string;
     individual?: string | FHIR.Reference;
-    assignedArm?: string;
-    actualArm?: string;
-    consent?: string | FHIR.Reference;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    period?: FHIR.Period;
+    status?: string;
+    study?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 

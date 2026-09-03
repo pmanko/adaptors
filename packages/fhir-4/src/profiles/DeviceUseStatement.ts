@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type DeviceUseStatement_Props = {
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    bodySite?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    derivedFrom?: MaybeArray<string | FHIR.Reference>;
+    device?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    subject?: string | FHIR.Reference;
-    derivedFrom?: MaybeArray<string | FHIR.Reference>;
-    timing?: FHIR.Timing | FHIR.Period | string;
-    recordedOn?: string;
-    source?: string | FHIR.Reference;
-    device?: string | FHIR.Reference;
+    note?: FHIR.Annotation[];
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    bodySite?: string[] | FHIR.CodeableConcept;
-    note?: FHIR.Annotation[];
+    recordedOn?: string;
+    source?: string | FHIR.Reference;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
+    timing?: FHIR.Timing | FHIR.Period | string;
     [key: string]: any;
 };
 
@@ -71,9 +71,20 @@ export default function(props: Partial<DeviceUseStatement_Props>) {
         resource.device = dt.reference(props.device);
     }
 
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+        resource.reasonCode = dt.concept(props.reasonCode);
+        dt.ensureConceptText(resource.reasonCode);
+    }
+
     if (!_.isNil(props.reasonReference)) {
         if (!Array.isArray(props.reasonReference)) { props.reasonReference = [props.reasonReference]; }
         resource.reasonReference = dt.reference(props.reasonReference);
+    }
+
+    if (!_.isNil(props.bodySite)) {
+        resource.bodySite = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/body-site", props.bodySite));
+        dt.ensureConceptText(resource.bodySite);
     }
 
     return resource;

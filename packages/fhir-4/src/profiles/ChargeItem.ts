@@ -3,46 +3,46 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ChargeItem_Props = {
+    account?: MaybeArray<string | FHIR.Reference>;
+    bodysite?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    context?: string | FHIR.Reference;
+    costCenter?: string | FHIR.Reference;
+    definitionCanonical?: any[];
+    definitionUri?: string[];
+    enteredDate?: string;
+    enterer?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    factorOverride?: number;
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    definitionUri?: string[];
-    definitionCanonical?: any[];
-    status?: string;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    context?: string | FHIR.Reference;
+    note?: FHIR.Annotation[];
     occurrence?: string | FHIR.Period | FHIR.Timing;
+    overrideReason?: string;
+    partOf?: MaybeArray<string | FHIR.Reference>;
     performer?: FHIR.BackboneElement[];
     performingOrganization?: string | FHIR.Reference;
-    requestingOrganization?: string | FHIR.Reference;
-    costCenter?: string | FHIR.Reference;
-    quantity?: FHIR.Quantity;
-    bodysite?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    factorOverride?: number;
     priceOverride?: FHIR.Money;
-    overrideReason?: string;
-    enterer?: string | FHIR.Reference;
-    enteredDate?: string;
-    reason?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    service?: MaybeArray<string | FHIR.Reference>;
     product?: string | FHIR.Reference | string[] | FHIR.CodeableConcept;
-    account?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
+    quantity?: FHIR.Quantity;
+    reason?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    requestingOrganization?: string | FHIR.Reference;
+    service?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subject?: string | FHIR.Reference;
     supportingInformation?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -60,6 +60,14 @@ export default function(props: Partial<ChargeItem_Props>) {
     if (!_.isNil(props.partOf)) {
         if (!Array.isArray(props.partOf)) { props.partOf = [props.partOf]; }
         resource.partOf = dt.reference(props.partOf);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/chargeitem-billingcodes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.subject)) {
@@ -101,8 +109,28 @@ export default function(props: Partial<ChargeItem_Props>) {
         resource.costCenter = dt.reference(props.costCenter);
     }
 
+    if (!_.isNil(props.bodysite)) {
+        if (!Array.isArray(props.bodysite)) { props.bodysite = [props.bodysite]; }
+
+        resource.bodysite = props.bodysite.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/body-site", x))
+        );
+
+        dt.ensureConceptText(resource.bodysite);
+    }
+
     if (!_.isNil(props.enterer)) {
         resource.enterer = dt.reference(props.enterer);
+    }
+
+    if (!_.isNil(props.reason)) {
+        if (!Array.isArray(props.reason)) { props.reason = [props.reason]; }
+
+        resource.reason = props.reason.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/icd-10", x))
+        );
+
+        dt.ensureConceptText(resource.reason);
     }
 
     if (!_.isNil(props.service)) {

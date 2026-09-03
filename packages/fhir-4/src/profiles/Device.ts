@@ -3,46 +3,46 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Device_Props = {
+    contact?: FHIR.ContactPoint[];
+    contained?: any[];
+    definition?: string | FHIR.Reference;
+    deviceName?: FHIR.BackboneElement[];
+    distinctIdentifier?: string;
+    expirationDate?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    location?: string | FHIR.Reference;
+    lotNumber?: string;
+    manufactureDate?: string;
+    manufacturer?: string;
+    meta?: FHIR.Meta;
+    modelNumber?: string;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    definition?: string | FHIR.Reference;
-    udiCarrier?: FHIR.BackboneElement[];
+    note?: FHIR.Annotation[];
+    owner?: string | FHIR.Reference;
+    parent?: string | FHIR.Reference;
+    partNumber?: string;
+    patient?: string | FHIR.Reference;
+    property?: FHIR.BackboneElement[];
+    safety?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    serialNumber?: string;
+    specialization?: FHIR.BackboneElement[];
     status?: string;
     statusReason?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    distinctIdentifier?: string;
-    manufacturer?: string;
-    manufactureDate?: string;
-    expirationDate?: string;
-    lotNumber?: string;
-    serialNumber?: string;
-    deviceName?: FHIR.BackboneElement[];
-    modelNumber?: string;
-    partNumber?: string;
+    text?: FHIR.Narrative;
     type?: string[] | FHIR.CodeableConcept;
-    specialization?: FHIR.BackboneElement[];
-    version?: FHIR.BackboneElement[];
-    property?: FHIR.BackboneElement[];
-    patient?: string | FHIR.Reference;
-    owner?: string | FHIR.Reference;
-    contact?: FHIR.ContactPoint[];
-    location?: string | FHIR.Reference;
+    udiCarrier?: FHIR.BackboneElement[];
     url?: string;
-    note?: FHIR.Annotation[];
-    safety?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    parent?: string | FHIR.Reference;
+    version?: FHIR.BackboneElement[];
     [key: string]: any;
 };
 
@@ -75,6 +75,16 @@ export default function(props: Partial<Device_Props>) {
         }
     }
 
+    if (!_.isNil(props.statusReason)) {
+        if (!Array.isArray(props.statusReason)) { props.statusReason = [props.statusReason]; }
+
+        resource.statusReason = props.statusReason.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/device-status-reason", x))
+        );
+
+        dt.ensureConceptText(resource.statusReason);
+    }
+
     if (!_.isNil(props.deviceName)) {
         let src = props.deviceName;
         if (!Array.isArray(src)) { src = [src]; }
@@ -87,6 +97,11 @@ export default function(props: Partial<Device_Props>) {
 
             resource.deviceName.push(_deviceName);
         }
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/device-type", props.type));
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.specialization)) {
@@ -141,6 +156,12 @@ export default function(props: Partial<Device_Props>) {
 
     if (!_.isNil(props.location)) {
         resource.location = dt.reference(props.location);
+    }
+
+    if (!_.isNil(props.safety)) {
+        if (!Array.isArray(props.safety)) { props.safety = [props.safety]; }
+        resource.safety = dt.concept(props.safety);
+        dt.ensureConceptText(resource.safety);
     }
 
     if (!_.isNil(props.parent)) {

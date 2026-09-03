@@ -3,40 +3,40 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ClinicalImpression_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
-    code?: string[] | FHIR.CodeableConcept;
-    description?: string;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    effective?: string | FHIR.Period;
-    date?: string;
     assessor?: string | FHIR.Reference;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    date?: string;
+    description?: string;
+    effective?: string | FHIR.Period;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
+    finding?: FHIR.BackboneElement[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    investigation?: FHIR.BackboneElement[];
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
     previous?: string | FHIR.Reference;
     problem?: MaybeArray<string | FHIR.Reference>;
-    investigation?: FHIR.BackboneElement[];
-    protocol?: string[];
-    summary?: string;
-    finding?: FHIR.BackboneElement[];
     prognosisCodeableConcept?: MaybeArray<string[] | FHIR.CodeableConcept>;
     prognosisReference?: MaybeArray<string | FHIR.Reference>;
+    protocol?: string[];
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    subject?: string | FHIR.Reference;
+    summary?: string;
     supportingInfo?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -49,6 +49,16 @@ export default function(props: Partial<ClinicalImpression_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(props.statusReason);
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(props.code);
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.subject)) {
@@ -103,6 +113,16 @@ export default function(props: Partial<ClinicalImpression_Props>) {
 
             resource.finding.push(_finding);
         }
+    }
+
+    if (!_.isNil(props.prognosisCodeableConcept)) {
+        if (!Array.isArray(props.prognosisCodeableConcept)) { props.prognosisCodeableConcept = [props.prognosisCodeableConcept]; }
+
+        resource.prognosisCodeableConcept = props.prognosisCodeableConcept.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/clinicalimpression-prognosis", x)
+        ));
+
+        dt.ensureConceptText(resource.prognosisCodeableConcept);
     }
 
     if (!_.isNil(props.prognosisReference)) {

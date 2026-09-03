@@ -3,42 +3,42 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Appointment_Props = {
+    appointmentType?: string[] | FHIR.CodeableConcept;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    cancelationReason?: string[] | FHIR.CodeableConcept;
+    comment?: string;
+    contained?: any[];
+    created?: string;
+    description?: string;
+    end?: string;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
+    minutesDuration?: number;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    cancelationReason?: string[] | FHIR.CodeableConcept;
-    serviceCategory?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    serviceType?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    specialty?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    appointmentType?: string[] | FHIR.CodeableConcept;
+    participant?: FHIR.BackboneElement[];
+    patientInstruction?: string;
+    priority?: number;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    priority?: number;
-    description?: string;
-    supportingInformation?: MaybeArray<string | FHIR.Reference>;
-    start?: string;
-    end?: string;
-    minutesDuration?: number;
-    slot?: MaybeArray<string | FHIR.Reference>;
-    created?: string;
-    comment?: string;
-    patientInstruction?: string;
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    participant?: FHIR.BackboneElement[];
     requestedPeriod?: FHIR.Period[];
+    serviceCategory?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    serviceType?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    slot?: MaybeArray<string | FHIR.Reference>;
+    specialty?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    start?: string;
+    status?: string;
+    supportingInformation?: MaybeArray<string | FHIR.Reference>;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -51,6 +51,63 @@ export default function(props: Partial<Appointment_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.cancelationReason)) {
+        resource.cancelationReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/appointment-cancellation-reason",
+            props.cancelationReason
+        ));
+
+        dt.ensureConceptText(resource.cancelationReason);
+    }
+
+    if (!_.isNil(props.serviceCategory)) {
+        if (!Array.isArray(props.serviceCategory)) { props.serviceCategory = [props.serviceCategory]; }
+
+        resource.serviceCategory = props.serviceCategory.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/service-category", x))
+        );
+
+        dt.ensureConceptText(resource.serviceCategory);
+    }
+
+    if (!_.isNil(props.serviceType)) {
+        if (!Array.isArray(props.serviceType)) { props.serviceType = [props.serviceType]; }
+
+        resource.serviceType = props.serviceType.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/service-type", x))
+        );
+
+        dt.ensureConceptText(resource.serviceType);
+    }
+
+    if (!_.isNil(props.specialty)) {
+        if (!Array.isArray(props.specialty)) { props.specialty = [props.specialty]; }
+
+        resource.specialty = props.specialty.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/c80-practice-codes", x))
+        );
+
+        dt.ensureConceptText(resource.specialty);
+    }
+
+    if (!_.isNil(props.appointmentType)) {
+        resource.appointmentType = dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v2-0276", props.appointmentType)
+        );
+
+        dt.ensureConceptText(resource.appointmentType);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/encounter-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

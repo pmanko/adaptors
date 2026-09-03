@@ -1,10 +1,19 @@
 import _ from 'lodash';
 
+// TODO need to generate this export properly
+// For base adaptors, we do this:
+import type * as FHIR from './fhir';
+export type * from './fhir';
+
+// But if there's a base, we import those core types from it
+// (note that we actually only want to import datatypes)
+// import type { builders as FHIR } from '@openfn/language-fhir-4';
+
 let systemMap = {};
 
 // https://hl7.org/fhir/R4/datatypes.html#dateTime
 const datetimeregex =
-  /([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?/;
+  /^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$/;
 
 export const mapSystems = obj => {
   if (Array.isArray(obj)) {
@@ -317,7 +326,7 @@ export const composite = (object, key, value) => {
     object[finalKey] = value;
   } else {
     console.warn(
-      `WARNING: Failed to map ${key}: unrecognised data type (see utils.composite)`
+      `WARNING: Failed to map ${key}: unrecognised data type (see utils.composite)`,
     );
   }
 };

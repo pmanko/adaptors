@@ -3,48 +3,48 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MedicinalProductDefinition_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    type?: string[] | FHIR.CodeableConcept;
-    domain?: string[] | FHIR.CodeableConcept;
-    version?: string;
-    status?: string[] | FHIR.CodeableConcept;
-    statusDate?: string;
-    description?: FHIR.markdown;
-    combinedPharmaceuticalDoseForm?: string[] | FHIR.CodeableConcept;
-    route?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    indication?: FHIR.markdown;
-    legalStatusOfSupply?: string[] | FHIR.CodeableConcept;
     additionalMonitoringIndicator?: string[] | FHIR.CodeableConcept;
-    specialMeasures?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    pediatricUseIndicator?: string[] | FHIR.CodeableConcept;
-    classification?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    marketingStatus?: FHIR.MarketingStatus[];
-    packagedMedicinalProduct?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    ingredient?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    impurity?: FHIR.CodeableReference[];
     attachedDocument?: MaybeArray<string | FHIR.Reference>;
-    masterFile?: MaybeArray<string | FHIR.Reference>;
-    contact?: FHIR.BackboneElement[];
+    characteristic?: FHIR.BackboneElement[];
+    classification?: MaybeArray<string[] | FHIR.CodeableConcept>;
     clinicalTrial?: MaybeArray<string | FHIR.Reference>;
     code?: FHIR.Coding[];
-    name?: FHIR.BackboneElement[];
+    combinedPharmaceuticalDoseForm?: string[] | FHIR.CodeableConcept;
+    contact?: FHIR.BackboneElement[];
+    contained?: any[];
     crossReference?: FHIR.BackboneElement[];
+    description?: string;
+    domain?: string[] | FHIR.CodeableConcept;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    impurity?: FHIR.CodeableReference[];
+    indication?: string;
+    ingredient?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    legalStatusOfSupply?: string[] | FHIR.CodeableConcept;
+    marketingStatus?: FHIR.MarketingStatus[];
+    masterFile?: MaybeArray<string | FHIR.Reference>;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: FHIR.BackboneElement[];
     operation?: FHIR.BackboneElement[];
-    characteristic?: FHIR.BackboneElement[];
+    packagedMedicinalProduct?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    pediatricUseIndicator?: string[] | FHIR.CodeableConcept;
+    route?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    specialMeasures?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    status?: string[] | FHIR.CodeableConcept;
+    statusDate?: string;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
+    version?: string;
     [key: string]: any;
 };
 
@@ -57,6 +57,116 @@ export default function(props: Partial<MedicinalProductDefinition_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicinal-product-type", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.domain)) {
+        resource.domain = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicinal-product-domain", props.domain)
+        );
+
+        dt.ensureConceptText(resource.domain);
+    }
+
+    if (!_.isNil(props.status)) {
+        resource.status = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/publication-status", props.status)
+        );
+
+        dt.ensureConceptText(resource.status);
+    }
+
+    if (!_.isNil(props.combinedPharmaceuticalDoseForm)) {
+        resource.combinedPharmaceuticalDoseForm = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/combined-dose-form",
+            props.combinedPharmaceuticalDoseForm
+        ));
+
+        dt.ensureConceptText(resource.combinedPharmaceuticalDoseForm);
+    }
+
+    if (!_.isNil(props.route)) {
+        if (!Array.isArray(props.route)) { props.route = [props.route]; }
+
+        resource.route = props.route.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/route-codes", x))
+        );
+
+        dt.ensureConceptText(resource.route);
+    }
+
+    if (!_.isNil(props.legalStatusOfSupply)) {
+        resource.legalStatusOfSupply = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/legal-status-of-supply",
+            props.legalStatusOfSupply
+        ));
+
+        dt.ensureConceptText(resource.legalStatusOfSupply);
+    }
+
+    if (!_.isNil(props.additionalMonitoringIndicator)) {
+        resource.additionalMonitoringIndicator = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/medicinal-product-additional-monitoring",
+            props.additionalMonitoringIndicator
+        ));
+
+        dt.ensureConceptText(resource.additionalMonitoringIndicator);
+    }
+
+    if (!_.isNil(props.specialMeasures)) {
+        if (!Array.isArray(props.specialMeasures)) { props.specialMeasures = [props.specialMeasures]; }
+
+        resource.specialMeasures = props.specialMeasures.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicinal-product-special-measures", x)
+        ));
+
+        dt.ensureConceptText(resource.specialMeasures);
+    }
+
+    if (!_.isNil(props.pediatricUseIndicator)) {
+        resource.pediatricUseIndicator = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/medicinal-product-pediatric-use",
+            props.pediatricUseIndicator
+        ));
+
+        dt.ensureConceptText(resource.pediatricUseIndicator);
+    }
+
+    if (!_.isNil(props.classification)) {
+        if (!Array.isArray(props.classification)) { props.classification = [props.classification]; }
+
+        resource.classification = props.classification.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/product-classification-codes", x)
+        ));
+
+        dt.ensureConceptText(resource.classification);
+    }
+
+    if (!_.isNil(props.packagedMedicinalProduct)) {
+        if (!Array.isArray(props.packagedMedicinalProduct)) { props.packagedMedicinalProduct = [props.packagedMedicinalProduct]; }
+
+        resource.packagedMedicinalProduct = props.packagedMedicinalProduct.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medicinal-product-package-type", x)
+        ));
+
+        dt.ensureConceptText(resource.packagedMedicinalProduct);
+    }
+
+    if (!_.isNil(props.ingredient)) {
+        if (!Array.isArray(props.ingredient)) { props.ingredient = [props.ingredient]; }
+
+        resource.ingredient = props.ingredient.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/substance-codes", x))
+        );
+
+        dt.ensureConceptText(resource.ingredient);
     }
 
     if (!_.isNil(props.attachedDocument)) {
@@ -86,6 +196,14 @@ export default function(props: Partial<MedicinalProductDefinition_Props>) {
     if (!_.isNil(props.clinicalTrial)) {
         if (!Array.isArray(props.clinicalTrial)) { props.clinicalTrial = [props.clinicalTrial]; }
         resource.clinicalTrial = dt.reference(props.clinicalTrial);
+    }
+
+    if (!_.isNil(props.code)) {
+        let src = props.code;
+        if (typeof src === 'string') {
+          src = dt.lookupValue('http://hl7.org/fhir/ValueSet/medication-codes', src);
+         }
+        resource.code = dt.coding(src);
     }
 
     if (!_.isNil(props.name)) {

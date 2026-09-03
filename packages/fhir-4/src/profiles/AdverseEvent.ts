@@ -3,40 +3,40 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type AdverseEvent_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: string | FHIR.Identifier;
     actuality?: string;
     category?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    event?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
+    contained?: any[];
+    contributor?: MaybeArray<string | FHIR.Reference>;
     date?: string;
     detected?: string;
-    recordedDate?: string;
-    resultingCondition?: MaybeArray<string | FHIR.Reference>;
+    encounter?: string | FHIR.Reference;
+    event?: string[] | FHIR.CodeableConcept;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: string | FHIR.Identifier;
+    implicitRules?: string;
+    language?: string;
     location?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    outcome?: string[] | FHIR.CodeableConcept;
+    recordedDate?: string;
+    recorder?: string | FHIR.Reference;
+    referenceDocument?: MaybeArray<string | FHIR.Reference>;
+    resultingCondition?: MaybeArray<string | FHIR.Reference>;
     seriousness?: string[] | FHIR.CodeableConcept;
     severity?: string[] | FHIR.CodeableConcept;
-    outcome?: string[] | FHIR.CodeableConcept;
-    recorder?: string | FHIR.Reference;
-    contributor?: MaybeArray<string | FHIR.Reference>;
-    suspectEntity?: FHIR.BackboneElement[];
-    subjectMedicalHistory?: MaybeArray<string | FHIR.Reference>;
-    referenceDocument?: MaybeArray<string | FHIR.Reference>;
     study?: MaybeArray<string | FHIR.Reference>;
+    subject?: string | FHIR.Reference;
+    subjectMedicalHistory?: MaybeArray<string | FHIR.Reference>;
+    suspectEntity?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -48,6 +48,24 @@ export default function(props: Partial<AdverseEvent_Props>) {
 
     if (!_.isNil(props.identifier)) {
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.category)) {
+        if (!Array.isArray(props.category)) { props.category = [props.category]; }
+
+        resource.category = props.category.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/adverse-event-category", x))
+        );
+
+        dt.ensureConceptText(resource.category);
+    }
+
+    if (!_.isNil(props.event)) {
+        resource.event = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/adverse-event-type", props.event)
+        );
+
+        dt.ensureConceptText(resource.event);
     }
 
     if (!_.isNil(props.subject)) {
@@ -65,6 +83,32 @@ export default function(props: Partial<AdverseEvent_Props>) {
 
     if (!_.isNil(props.location)) {
         resource.location = dt.reference(props.location);
+    }
+
+    if (!_.isNil(props.seriousness)) {
+        resource.seriousness = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/adverse-event-seriousness",
+            props.seriousness
+        ));
+
+        dt.ensureConceptText(resource.seriousness);
+    }
+
+    if (!_.isNil(props.severity)) {
+        resource.severity = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/adverse-event-severity|4.3.0",
+            props.severity
+        ));
+
+        dt.ensureConceptText(resource.severity);
+    }
+
+    if (!_.isNil(props.outcome)) {
+        resource.outcome = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/adverse-event-outcome|4.3.0", props.outcome)
+        );
+
+        dt.ensureConceptText(resource.outcome);
     }
 
     if (!_.isNil(props.recorder)) {

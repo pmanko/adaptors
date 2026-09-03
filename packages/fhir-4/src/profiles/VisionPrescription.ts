@@ -3,28 +3,28 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type VisionPrescription_Props = {
+    contained?: any[];
+    created?: string;
+    dateWritten?: string;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    created?: string;
-    patient?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    dateWritten?: string;
-    prescriber?: string | FHIR.Reference;
     lensSpecification?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    patient?: string | FHIR.Reference;
+    prescriber?: string | FHIR.Reference;
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 

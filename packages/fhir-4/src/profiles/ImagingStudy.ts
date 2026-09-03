@@ -3,40 +3,40 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type ImagingStudy_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    modality?: FHIR.Coding[];
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    started?: string;
     basedOn?: MaybeArray<string | FHIR.Reference>;
-    referrer?: string | FHIR.Reference;
-    interpreter?: MaybeArray<string | FHIR.Reference>;
+    contained?: any[];
+    description?: string;
+    encounter?: string | FHIR.Reference;
     endpoint?: MaybeArray<string | FHIR.Reference>;
-    numberOfSeries?: number;
-    numberOfInstances?: number;
-    procedureReference?: string | FHIR.Reference;
-    procedureCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    interpreter?: MaybeArray<string | FHIR.Reference>;
+    language?: string;
     location?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modality?: FHIR.Coding[];
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    numberOfInstances?: number;
+    numberOfSeries?: number;
+    procedureCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    procedureReference?: string | FHIR.Reference;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    description?: string;
+    referrer?: string | FHIR.Reference;
     series?: FHIR.BackboneElement[];
+    started?: string;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -49,6 +49,14 @@ export default function(props: Partial<ImagingStudy_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.modality)) {
+        let src = props.modality;
+        if (typeof src === 'string') {
+          src = dt.lookupValue('http://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_29.html', src);
+         }
+        resource.modality = dt.coding(src);
     }
 
     if (!_.isNil(props.subject)) {
@@ -82,8 +90,28 @@ export default function(props: Partial<ImagingStudy_Props>) {
         resource.procedureReference = dt.reference(props.procedureReference);
     }
 
+    if (!_.isNil(props.procedureCode)) {
+        if (!Array.isArray(props.procedureCode)) { props.procedureCode = [props.procedureCode]; }
+
+        resource.procedureCode = props.procedureCode.map(
+            (x) => dt.concept(dt.lookupValue("http://www.rsna.org/RadLex_Playbook.aspx", x))
+        );
+
+        dt.ensureConceptText(resource.procedureCode);
+    }
+
     if (!_.isNil(props.location)) {
         resource.location = dt.reference(props.location);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/procedure-reason", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

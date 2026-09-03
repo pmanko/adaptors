@@ -3,37 +3,37 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type RiskAssessment_Props = {
+    basedOn?: string | FHIR.Reference;
+    basis?: MaybeArray<string | FHIR.Reference>;
+    code?: string[] | FHIR.CodeableConcept;
+    condition?: string | FHIR.Reference;
+    contained?: any[];
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    basedOn?: string | FHIR.Reference;
-    parent?: string | FHIR.Reference;
-    status?: string;
+    meta?: FHIR.Meta;
     method?: string[] | FHIR.CodeableConcept;
-    code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
+    mitigation?: string;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
     occurrence?: string | FHIR.Period;
-    condition?: string | FHIR.Reference;
+    parent?: string | FHIR.Reference;
     performer?: string | FHIR.Reference;
+    prediction?: FHIR.BackboneElement[];
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    basis?: MaybeArray<string | FHIR.Reference>;
-    prediction?: FHIR.BackboneElement[];
-    mitigation?: string;
-    note?: FHIR.Annotation[];
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -56,6 +56,16 @@ export default function(props: Partial<RiskAssessment_Props>) {
         resource.parent = dt.reference(props.parent);
     }
 
+    if (!_.isNil(props.method)) {
+        resource.method = dt.concept(props.method);
+        dt.ensureConceptText(resource.method);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(props.code);
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.subject)) {
         resource.subject = dt.reference(props.subject);
     }
@@ -75,6 +85,12 @@ export default function(props: Partial<RiskAssessment_Props>) {
 
     if (!_.isNil(props.performer)) {
         resource.performer = dt.reference(props.performer);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+        resource.reasonCode = dt.concept(props.reasonCode);
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

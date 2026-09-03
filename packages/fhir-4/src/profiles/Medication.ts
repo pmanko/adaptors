@@ -3,28 +3,28 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Medication_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    amount?: FHIR.Ratio;
+    batch?: FHIR.BackboneElement;
+    code?: string[] | FHIR.CodeableConcept;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    code?: string[] | FHIR.CodeableConcept;
-    status?: string;
-    manufacturer?: string | FHIR.Reference;
     form?: string[] | FHIR.CodeableConcept;
-    amount?: FHIR.Ratio;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     ingredient?: FHIR.BackboneElement[];
-    batch?: FHIR.BackboneElement;
+    language?: string;
+    manufacturer?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -39,8 +39,24 @@ export default function(props: Partial<Medication_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medication-codes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.manufacturer)) {
         resource.manufacturer = dt.reference(props.manufacturer);
+    }
+
+    if (!_.isNil(props.form)) {
+        resource.form = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medication-form-codes", props.form)
+        );
+
+        dt.ensureConceptText(resource.form);
     }
 
     if (!_.isNil(props.ingredient)) {
@@ -61,7 +77,7 @@ export default function(props: Partial<Medication_Props>) {
         let src = props.batch;
 
         let _batch = {
-            ...item
+            ...src
         };
 
         resource.batch = _batch;

@@ -1,12 +1,14 @@
-import { Client, MockAgent } from 'undici';
 import { getReasonPhrase } from 'http-status-codes';
 import { Readable } from 'node:stream';
 import querystring from 'node:querystring';
 import path from 'node:path';
-import throwError from './throw-error';
-import { encode } from './base64';
+import throwError from './throw-error.js';
+import { encode } from './base64.js';
+import { MockAgent, Agent, interceptors, FormData } from 'undici';
+import _ from 'lodash';
 
-const clients = new Map();
+// Maps undici dispatchers to keys (where a key is the base url + encoded options)
+const agents = new Map();
 
 export const makeBasicAuthHeader = (username, password) => {
   const buff = Buffer.from(`${username}:${password}`);
@@ -35,69 +37,125 @@ export const logResponse = response => {
   return response;
 };
 
-const getClient = (baseUrl, options) => {
-  const { tls } = options;
-  if (!clients.has(baseUrl)) {
-    clients.set(baseUrl, new Client(baseUrl, { connect: tls }));
+// Sort an object into a string of key,value pairs
+// Supports nesting
+const sortObject = obj =>
+  _(obj)
+    .toPairs()
+    .filter(([_k, v]) => v !== undefined) // ignore undefined values
+    .sortBy(0)
+    .map(([k, v]) => {
+      if (v && typeof v === 'object') {
+        if (!Object.keys(v).length) {
+          return '';
+        }
+        // eslint-disable-next-line no-param-reassign
+        v = `${'{'}${sortObject(v)}${'}'}`;
+      }
+      return [k, v].join(':');
+    })
+    .join('|');
+
+export const generateAgentKey = (baseUrl, agentOpts = {}) => {
+  if (Object.keys(agentOpts).length) {
+    const sortedSerializedOptions = sortObject(agentOpts);
+    if (sortedSerializedOptions.length) {
+      return `${baseUrl}+${sortedSerializedOptions}`;
+    }
   }
-  return clients.get(baseUrl);
+  return baseUrl;
 };
 
+const getDispatcher = (origin, options = {}) => {
+  const { tls = {}, defaultContentType, ...agentOpts } = options;
+  const key = generateAgentKey(origin, options);
+  if (!agents.has(key)) {
+    const agent = new Agent({
+      connect: tls,
+      ...agentOpts,
+    }).compose(
+      interceptors.redirect({
+        maxRedirections: agentOpts.maxRedirections,
+      }),
+      interceptors.decompress(),
+    );
+
+    agents.set(key, agent);
+  }
+
+  return agents.get(key);
+};
+
+// Set the agent for a URL + options to be a mock dispatcher
+// This causes all subsequent getDispatcher calls to use the mock,
+// rather than a real dispatcher
+// Note that when testing adaptors, options like maxRedirections
+// MUST be set or else the mock agent will not be used!
 export const enableMockClient = (baseUrl, options = {}) => {
-  const { defaultContentType = 'application/json' } = options;
+  const {
+    defaultContentType = 'application/json',
+    tls = {},
+    ...agentOpts
+  } = options;
 
   const mockAgent = new MockAgent({ connections: 1 });
   mockAgent.disableNetConnect();
-  const client = mockAgent.get(baseUrl);
-  if (!clients.has(baseUrl)) {
-    if (defaultContentType) {
-      const _intercept = client.intercept;
-      // because so many unit test use mock json,
-      // force the content-type header if a body is specified
-      client.intercept = (...args) => {
-        const interceptor = _intercept.apply(client, args);
 
-        const _reply = interceptor.reply;
+  const key = generateAgentKey(baseUrl, {
+    ...agentOpts,
+    tls,
+  });
+  console.log('Creating mock client for key:', key);
 
-        const ensureJsonHeader = (headers = {}) => {
-          const hasJsonHeader = Object.keys(headers).find(k =>
-            /content-type/i.test(k)
-          );
-          if (!hasJsonHeader) {
-            headers['content-type'] = defaultContentType;
-          }
-        };
+  const dispatcher = mockAgent.get(baseUrl);
+  if (defaultContentType) {
+    const _intercept = dispatcher.intercept;
+    // because so many unit test use mock json,
+    // force the content-type header if a body is specified
+    dispatcher.intercept = (...args) => {
+      const interceptor = _intercept.apply(dispatcher, args);
 
-        const reply = (...args) => {
-          if (typeof args[0] === 'function') {
-            // call the function
-            // in the resulting object, set the headers
-            const response = _reply.apply(interceptor, args);
-            if (response.body) {
-              response.headers ??= {};
-              ensureJsonHeader(response.headers);
-            }
-            return response;
-          } else {
-            const [code, data, options = {}] = args;
-            if (data) {
-              options.headers ??= {};
-              ensureJsonHeader(options.headers);
-            }
-            return _reply.call(interceptor, code, data, options);
-          }
-        };
+      const _reply = interceptor.reply;
 
-        interceptor.reply = reply;
-
-        return interceptor;
+      const ensureJsonHeader = (headers = {}) => {
+        const hasJsonHeader = Object.keys(headers).find(k =>
+          /content-type/i.test(k),
+        );
+        if (!hasJsonHeader) {
+          headers['content-type'] = defaultContentType;
+        }
       };
-    }
 
-    clients.set(baseUrl, client);
+      const reply = (...args) => {
+        if (typeof args[0] === 'function') {
+          // call the function
+          // in the resulting object, set the headers
+          const response = _reply.apply(interceptor, args);
+          if (response.body) {
+            response.headers ??= {};
+            ensureJsonHeader(response.headers);
+          }
+          return response;
+        } else {
+          const [code, data, options = {}] = args;
+          if (data) {
+            options.headers ??= {};
+            ensureJsonHeader(options.headers);
+          }
+          return _reply.call(interceptor, code, data, options);
+        }
+      };
+
+      interceptor.reply = reply;
+
+      return interceptor;
+    };
   }
 
-  return client;
+  if (!agents.has(key)) {
+    agents.set(key, mockAgent);
+  }
+  return dispatcher;
 };
 
 const assertOK = async (response, errorMap, fullUrl, method, startTime) => {
@@ -181,12 +239,11 @@ export const parseUrl = (pathOrUrl = '', baseUrl) => {
     //       Ie it may be https://example.com/api/v1
     //       Doing new URl(path, base) will chop off the "base path" so to speak, and break stuff
     //       Technically path.join will produce an invalid URL, but the URL parser handles it safely
-    fullUrl = new URL(path.join(baseUrl, pathOrUrl));
+    fullUrl = new URL(path.posix.join(baseUrl, pathOrUrl));
   } else {
     // let this throw
     new URL(pathOrUrl);
   }
-
   return {
     url: fullUrl.toString(),
     baseUrl: fullUrl.origin,
@@ -225,27 +282,26 @@ export async function request(method, fullUrlOrPath, options = {}) {
     query: optionQuery = {},
     body,
     errors = {},
-    timeout = 300e3, // Default to 300 seconds,
+    timeout = 300e3, // Default to 300 seconds
     tls = {},
     parseAs = 'auto',
     maxRedirections,
+    throwOnUnhandledRedirect = true, // Internal use only
   } = options;
 
-  const client = getClient(baseUrl, { tls });
+  const dispatcher = getDispatcher(baseUrl, { tls, maxRedirections });
 
   const queryParams = {
     ...optionQuery,
     ...urlQuery,
   };
 
-  const response = await client.request({
+  const response = await dispatcher.request({
     path,
     query: queryParams,
     method,
     headers,
     body: encodeRequestBody(body),
-    throwOnError: false,
-    maxRedirections,
     bodyTimeout: timeout,
     headersTimeout: timeout,
     // If the request is redirected, undici requires the origin to be set (this affects commcare)
@@ -255,6 +311,25 @@ export async function request(method, fullUrlOrPath, options = {}) {
   const statusText = getReasonPhrase(response.statusCode);
 
   await assertOK(response, errors, url, method, startTime);
+
+  // redirect codes https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#redirection_messages
+  const hasRedirectStatus = [300, 301, 302, 303, 304, 305, 307, 308].includes(
+    response.statusCode,
+  );
+
+  if (
+    hasRedirectStatus &&
+    maxRedirections === undefined &&
+    throwOnUnhandledRedirect
+  ) {
+    throwError(response.statusCode, {
+      statusMessage: statusText,
+      description: `Response has redirect status, but 'maxRedirections' is not set`,
+      fix:
+        `Set 'maxRedirections' to enable auto-redirect.` +
+        `Example: request('GET', '${fullUrlOrPath}', { maxRedirections: 5 })`,
+    });
+  }
 
   const responseBody = await readResponseBody(response, parseAs);
   const endTime = Date.now();
@@ -273,6 +348,36 @@ export async function request(method, fullUrlOrPath, options = {}) {
     requestResponse.query = queryParams;
   }
   return requestResponse;
+}
+
+/**
+ * Encodes a plain object into a `FormData` instance.
+ *
+ * - Primitives are converted to strings
+ * - Objects and arrays are JSON stringified
+ * - `Blob` and `File` values are appended as-is
+ * - Null and undefined values are skipped
+ *
+ * @param {Object} data - The object to encode
+ * @returns {FormData}
+ */
+export function encodeFormBody(data) {
+  const form = new FormData();
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined) continue;
+
+    if (value instanceof Blob || value instanceof File) {
+      form.append(key, value);
+    } else {
+      form.append(
+        key,
+        typeof value === 'object' ? JSON.stringify(value) : String(value),
+      );
+    }
+  }
+
+  return form;
 }
 
 function encodeRequestBody(body) {
@@ -327,7 +432,9 @@ async function readResponseBody(response, parseAs) {
         const arrayBuffer = await response.body.arrayBuffer();
         return encode(arrayBuffer, { parseJson: false });
       default:
-        return contentType && contentType.includes('application/json')
+        return contentType &&
+          (contentType.includes('application/json') ||
+            contentType.includes('+json'))
           ? await response.body.json()
           : response.body.text();
     }

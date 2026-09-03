@@ -8,7 +8,7 @@ import {
 } from '@openfn/language-common/util';
 import { google } from 'googleapis';
 import { Readable } from 'stream';
-import { getFileById, getFileByName } from './util';
+import { getFileById, getFileByName } from './util.js';
 
 let client;
 
@@ -25,10 +25,34 @@ let client;
  * @param {Object} state - object containing the access token.
  * @returns {Object} state with Google Drive client initialized.
  */
-function createConnection(state) {
-  const { accessToken } = state.configuration;
-  const auth = new google.auth.OAuth2();
-  auth.credentials = { access_token: accessToken };
+async function createConnection(state) {
+  const {
+    accessToken,
+    private_key,
+    client_email,
+    scopes = [],
+  } = state.configuration;
+
+  const mandatoryScopes = [
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/drive.readonly',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'openid',
+  ];
+  let auth;
+  if (private_key && client_email) {
+    auth = new google.auth.JWT({
+      email: client_email,
+      key: private_key,
+      scopes: [...mandatoryScopes, ...scopes],
+    });
+    await auth.authorize();
+  } else {
+    auth = new google.auth.OAuth2();
+    auth.credentials = { access_token: accessToken };
+  }
+
   client = google.drive({ version: 'v3', auth });
   return state;
 }
@@ -63,14 +87,18 @@ export function execute(...operations) {
   };
 
   return state => {
+    const isServiceAccount =
+      state.configuration?.private_key && state.configuration?.client_email;
     return commonExecute(
       createConnection,
       ...operations,
-      removeConnection
+      removeConnection,
     )({
       ...initialState,
       ...state,
-      configuration: normalizeOauthConfig(state.configuration),
+      configuration: isServiceAccount
+        ? state.configuration
+        : normalizeOauthConfig(state.configuration),
     });
   };
 }
@@ -144,6 +172,63 @@ export function get(fileIdOrName) {
 }
 
 /**
+ * Lists files from a directory or root.
+ * @public
+ * @example <caption>List files of a directory</caption>
+ * list('<id-of-folder-here>')
+ * @example <caption>Get the latest modified file in folder</caption>
+ * list('<id-of-folder-here>',
+ *  {
+ *    fields: ['id', 'name', 'modifiedTime'],
+ *    limit: 1,
+ *    orderBy: 'modifiedTime desc'
+ * })
+ * @param {string} folderId - ID of the folder to list files from. If not provided, lists files from the root.
+ * @param {Object} [options] - Options for listing files
+ * @state {DriveState}
+ * @returns {Operation} An operation that retrieves a list of files.
+ */
+export function list(folderId, options) {
+  return async state => {
+    const [resolvedFolderId, resolvedOptions] = expandReferences(
+      state,
+      folderId,
+      options || {},
+    );
+    const { fields, query, limit, orderBy, pageToken } = resolvedOptions;
+
+    if (!resolvedFolderId || typeof resolvedFolderId !== 'string') {
+      throw Error(
+        'folderId is required: You need to provide the id of a folder to list from',
+      );
+    }
+
+    let finalFields = ['id', 'name', 'mimeType', 'createdTime', 'modifiedTime'];
+    if (Array.isArray(fields)) finalFields = fields;
+    else if (typeof fields === 'string') {
+      finalFields = fields.split(',').map(v => v.trim());
+    }
+
+    // generate final query
+    const queries = [`'${resolvedFolderId}' in parents`];
+    if (query) queries.push(query);
+
+    const response = await client.files.list({
+      q: queries.join(' and '),
+      fields: `nextPageToken, incompleteSearch, kind, files(${finalFields.join(',')})`,
+      pageSize: limit ?? undefined,
+      orderBy: orderBy || 'modifiedTime desc',
+      pageToken: pageToken ?? undefined,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    const files = response?.data?.files ?? [];
+    state.response = { nextPageToken: response?.data?.nextPageToken };
+    return composeNextState(state, files);
+  };
+}
+
+/**
  * Updates an existing file in Google Drive.
  * @public
  * @example <caption>Update a file</caption>
@@ -158,7 +243,7 @@ export function update(fileId, content) {
     const [resolvedFileId, resolvedContent] = expandReferences(
       state,
       fileId,
-      content
+      content,
     );
 
     const media = {
@@ -181,23 +266,24 @@ export function update(fileId, content) {
 }
 
 export {
+  alterState,
+  arrayToString,
   as,
-  fn,
-  fnIf,
-  util,
-  each,
-  field,
-  merge,
   chunk,
-  fields,
-  cursor,
   combine,
-  dateFns,
-  parseCsv,
+  cursor,
   dataPath,
   dataValue,
-  alterState,
-  sourceValue,
-  arrayToString,
+  dateFns,
+  each,
+  field,
+  fields,
+  fn,
+  fnIf,
   lastReferenceValue,
+  log,
+  merge,
+  parseCsv,
+  sourceValue,
+  util,
 } from '@openfn/language-common';

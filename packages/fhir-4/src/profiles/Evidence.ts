@@ -3,45 +3,45 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Evidence_Props = {
+    approvalDate?: string;
+    assertion?: string;
+    author?: FHIR.ContactDetail[];
+    certainty?: FHIR.BackboneElement[];
+    citeAs?: string | FHIR.Reference | string;
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    date?: string;
+    description?: string;
+    editor?: FHIR.ContactDetail[];
+    endorser?: FHIR.ContactDetail[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    title?: string;
-    citeAs?: string | FHIR.Reference | FHIR.markdown;
-    status?: string;
-    date?: string;
-    useContext?: FHIR.UsageContext[];
-    approvalDate?: string;
     lastReviewDate?: string;
-    publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    author?: FHIR.ContactDetail[];
-    editor?: FHIR.ContactDetail[];
-    reviewer?: FHIR.ContactDetail[];
-    endorser?: FHIR.ContactDetail[];
-    relatedArtifact?: FHIR.RelatedArtifact[];
-    description?: FHIR.markdown;
-    assertion?: FHIR.markdown;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     note?: FHIR.Annotation[];
-    variableDefinition?: FHIR.BackboneElement[];
-    synthesisType?: string[] | FHIR.CodeableConcept;
-    studyType?: string[] | FHIR.CodeableConcept;
+    publisher?: string;
+    relatedArtifact?: FHIR.RelatedArtifact[];
+    reviewer?: FHIR.ContactDetail[];
     statistic?: FHIR.BackboneElement[];
-    certainty?: FHIR.BackboneElement[];
+    status?: string;
+    studyType?: string[] | FHIR.CodeableConcept;
+    synthesisType?: string[] | FHIR.CodeableConcept;
+    text?: FHIR.Narrative;
+    title?: string;
+    url?: string;
+    useContext?: FHIR.UsageContext[];
+    variableDefinition?: FHIR.BackboneElement[];
+    version?: string;
     [key: string]: any;
 };
 
@@ -73,6 +73,19 @@ export default function(props: Partial<Evidence_Props>) {
 
             resource.variableDefinition.push(_variableDefinition);
         }
+    }
+
+    if (!_.isNil(props.synthesisType)) {
+        resource.synthesisType = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/synthesis-type", props.synthesisType)
+        );
+
+        dt.ensureConceptText(resource.synthesisType);
+    }
+
+    if (!_.isNil(props.studyType)) {
+        resource.studyType = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/study-type", props.studyType));
+        dt.ensureConceptText(resource.studyType);
     }
 
     if (!_.isNil(props.statistic)) {

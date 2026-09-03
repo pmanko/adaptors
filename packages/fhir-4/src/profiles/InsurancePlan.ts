@@ -3,34 +3,34 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type InsurancePlan_Props = {
+    administeredBy?: string | FHIR.Reference;
+    alias?: string[];
+    contact?: FHIR.BackboneElement[];
+    contained?: any[];
+    coverage?: FHIR.BackboneElement[];
+    coverageArea?: MaybeArray<string | FHIR.Reference>;
+    endpoint?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     name?: string;
-    alias?: string[];
-    period?: FHIR.Period;
-    ownedBy?: string | FHIR.Reference;
-    administeredBy?: string | FHIR.Reference;
-    coverageArea?: MaybeArray<string | FHIR.Reference>;
-    contact?: FHIR.BackboneElement[];
-    endpoint?: MaybeArray<string | FHIR.Reference>;
     network?: MaybeArray<string | FHIR.Reference>;
-    coverage?: FHIR.BackboneElement[];
+    ownedBy?: string | FHIR.Reference;
+    period?: FHIR.Period;
     plan?: FHIR.BackboneElement[];
+    status?: string;
+    text?: FHIR.Narrative;
+    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     [key: string]: any;
 };
 
@@ -43,6 +43,16 @@ export default function(props: Partial<InsurancePlan_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        if (!Array.isArray(props.type)) { props.type = [props.type]; }
+
+        resource.type = props.type.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/insuranceplan-type", x))
+        );
+
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.ownedBy)) {

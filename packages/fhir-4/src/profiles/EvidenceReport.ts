@@ -3,38 +3,38 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type EvidenceReport_Props = {
+    author?: FHIR.ContactDetail[];
+    citeAs?: string | FHIR.Reference | string;
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    editor?: FHIR.ContactDetail[];
+    endorser?: FHIR.ContactDetail[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    url?: string;
-    status?: string;
-    useContext?: FHIR.UsageContext[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    relatedIdentifier?: MaybeArray<string | FHIR.Identifier>;
-    citeAs?: string | FHIR.Reference | FHIR.markdown;
-    type?: string[] | FHIR.CodeableConcept;
     note?: FHIR.Annotation[];
-    relatedArtifact?: FHIR.RelatedArtifact[];
-    subject?: FHIR.BackboneElement;
     publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    author?: FHIR.ContactDetail[];
-    editor?: FHIR.ContactDetail[];
-    reviewer?: FHIR.ContactDetail[];
-    endorser?: FHIR.ContactDetail[];
+    relatedArtifact?: FHIR.RelatedArtifact[];
+    relatedIdentifier?: MaybeArray<string | FHIR.Identifier>;
     relatesTo?: FHIR.BackboneElement[];
+    reviewer?: FHIR.ContactDetail[];
     section?: FHIR.BackboneElement[];
+    status?: string;
+    subject?: FHIR.BackboneElement;
+    text?: FHIR.Narrative;
+    type?: string[] | FHIR.CodeableConcept;
+    url?: string;
+    useContext?: FHIR.UsageContext[];
     [key: string]: any;
 };
 
@@ -59,11 +59,19 @@ export default function(props: Partial<EvidenceReport_Props>) {
         dt.composite(resource, "citeAs", props.citeAs);
     }
 
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/evidence-report-type", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
     if (!_.isNil(props.subject)) {
         let src = props.subject;
 
         let _subject = {
-            ...item
+            ...src
         };
 
         resource.subject = _subject;

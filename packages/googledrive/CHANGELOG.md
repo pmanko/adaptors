@@ -1,5 +1,177 @@
 # @openfn/language-googledrive
 
+## 3.2.1 - 03 September 2026
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 3.2.0 - 03 August 2026
+
+### Minor Changes
+
+- 7dd37fc: Add support for Google Service Account credential
+
+## 3.1.2 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 3.1.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 3.1.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 3.0.6 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 3.0.5 - 17 April 2026
+
+### Patch Changes
+
+- c226622: Update googleapis library
+
+## 3.0.4 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 3.0.3 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 3.0.2 - 17 March 2026
+
+### Patch Changes
+
+- fc6fc99: Updated docs for the `list` function
+
+## 3.0.1 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 3.0.0 - 09 February 2026
+
+The 3.0.0 version ensures that the `list()` command can access all folders
+shared with the credential - but demands that a single folderId be provided, to
+prevent accidental data leaks.
+
+### Breaking Changes
+
+- 7971401: `list()` now requires a `folderId` argument
+
+If you used `list()` from v2.1.0, you must now provide a folderId as an
+argument:
+
+```
+list() -> list('21345', { limit: 10 })
+```
+
+If you used folderId as an option, it must now be an argument
+
+```
+list({ folderId; '21345', limit: 10 }) -> list('21345', { limit: 10 })
+```
+
+## 2.1.1 (deprecated)
+
+### Patch Changes
+
+- aa56385: Set supportsAllDrives on list()
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 2.1.0 - 29 January 2026
+
+### Minor Changes
+
+- 15dc2e4: add list method for listing files in a directory
+
+## 2.0.8 - 28 January 2026
+
+### Patch Changes
+
+- f076142: Set `supportsAllDrives` flag to allow credentials to access shared
+  drives
+
+## 2.0.7 - 02 December 2025
+
+### Patch Changes
+
+- e8f7f2d: Security update
+
+## 2.0.6 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 2.0.5 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 2.0.4 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 2.0.3 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 2.0.2 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 2.0.1 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
 ## 2.0.0 - 11 August 2025
 
 ### Major Changes

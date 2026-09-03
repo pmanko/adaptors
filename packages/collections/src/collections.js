@@ -3,9 +3,9 @@ import undici from 'undici';
 import { throwError, expandReferences } from '@openfn/language-common/util';
 import parser from 'stream-json';
 
-import { createServer } from './mock';
+import { createServer, API } from './mock.js';
 
-export { createServer as createMockServer };
+export { createServer as createMockServer, API as createMockAPI };
 
 let client;
 
@@ -86,7 +86,7 @@ export function get(name, query = {}) {
       })(scopedState);
 
       console.log(
-        `Collections: Fetched total of ${data.length} values from "${name}"`
+        `Collections: Fetched total of ${data.length} values from "${name}"`,
       );
 
       data.cursor = scopedState.data.cursor;
@@ -96,7 +96,7 @@ export function get(name, query = {}) {
       const response = await request(
         state,
         getClient(state),
-        `${resolvedName}/${key}`
+        `${resolvedName}/${key}`,
       );
 
       if (response.statusCode === 204) {
@@ -127,7 +127,7 @@ export function get(name, query = {}) {
  * @public
  * @function
  * @param {string} name - The name of the collection to fetch from
- * @param keygen - a function which generates a key for each value: (value, index) => key. Pass a string to set a static key for a single item.
+ * @param keygen - a function which generates a key for each value: (value, state, index) => key. Pass a string to set a static key for a single item.
  * @param values - an array of values to set, or a single value.
  * @example <caption>Set a number of values using each value's id property as a key</caption>
  * collections.set('my-collection', (item) => item.id, $.data)
@@ -157,7 +157,7 @@ export function set(name, keyGen, values) {
     const [resolvedName, resolvedValues] = expandReferences(
       state,
       name,
-      values
+      values,
     );
 
     let kvPairs;
@@ -194,7 +194,7 @@ export function set(name, keyGen, values) {
       const batch = kvPairs.splice(0, batchSize);
 
       console.log(
-        `Collections: uploading batch of ${batch.length} values to "${name}"...`
+        `Collections: uploading batch of ${batch.length} values to "${name}"...`,
       );
       const response = await request(state, getClient(state), resolvedName, {
         method: 'POST',
@@ -206,7 +206,7 @@ export function set(name, keyGen, values) {
 
       if (response.statusCode >= 400) {
         console.log(
-          `Collections: Error setting ${batch.length} values in "${name}"`
+          `Collections: Error setting ${batch.length} values in "${name}"`,
         );
         const text = await response.body.text();
         const e = new Error('ERROR from collections server:' + 400);
@@ -340,7 +340,7 @@ export function each(name, query = {}, callback = () => {}) {
       count += batchSize;
 
       console.log(
-        `Collections: fetched chunk of ${batchSize} values from "${name}"`
+        `Collections: fetched chunk of ${batchSize} values from "${name}"`,
       );
     } while (cursor && count < limit);
 
@@ -467,8 +467,12 @@ export const request = async (state, client, path, options = {}) => {
 
   const { headers: _h, query: _q, ...otherOptions } = options;
   const query = parseQuery(options);
+  if (state.configuration.project_id) {
+    query.project_id = state.configuration.project_id;
+  }
+
   const args = {
-    path: nodepath.join(basePath, path),
+    path: nodepath.posix.join(basePath, path),
     headers,
     method: 'GET',
     query,
@@ -477,12 +481,41 @@ export const request = async (state, client, path, options = {}) => {
 
   const response = await client.request(args);
   if (response.statusCode >= 400) {
-    await handleError(response, path, state.configuration.collections_endpoint);
+    await handleError(
+      response,
+      path,
+      state.configuration.collections_endpoint,
+      query.project_id,
+    );
   }
   return response;
 };
 
-export const handleError = async (response, path, endpoint) => {
+export const handleError = async (response, path, endpoint, project_id) => {
+  if (response.statusCode === 409) {
+    if (!project_id) {
+      const [collection] = path.split('/');
+      const e = new Error('NO_PROJECT_ID');
+
+      // 409 means a the collection name could not be resolved - probably there was no project id
+      e.code = 'NO_PROJECT_ID';
+      e.description = `The collection "${collection}" matched multiple collections on the server and project_id was omitted`;
+      e.collection = collection;
+      e.endpoint = endpoint;
+      e.fix =
+        'Set state.configuration.project_id before using the collections API';
+      throw e;
+    } else {
+      const [collection] = path.split('/');
+      // We should never get here - if there's a project ID there should never be a conflcit
+      const e = new Error('COLLECTION_CONFLICT');
+      e.code = 'COLLECTION_CONFLICT';
+      e.description = `Multiple collections named "${collection}" were found on the server`;
+      e.collection = collection;
+      e.endpoint = endpoint;
+      e.fix = 'Contact your system administrator';
+    }
+  }
   if (response.statusCode === 404) {
     const [collection] = path.split('/');
     console.error(`Error! Collection ${collection} does not exist`);

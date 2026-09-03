@@ -3,38 +3,38 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type RequestGroup_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    action?: FHIR.BackboneElement[];
+    author?: string | FHIR.Reference;
+    authoredOn?: string;
+    basedOn?: MaybeArray<string | FHIR.Reference>;
+    code?: string[] | FHIR.CodeableConcept;
     contained?: any[];
+    encounter?: string | FHIR.Reference;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    groupIdentifier?: string | FHIR.Identifier;
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     instantiatesCanonical?: any[];
     instantiatesUri?: string[];
-    basedOn?: MaybeArray<string | FHIR.Reference>;
-    replaces?: MaybeArray<string | FHIR.Reference>;
-    groupIdentifier?: string | FHIR.Identifier;
-    status?: string;
     intent?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
     priority?: string;
-    code?: string[] | FHIR.CodeableConcept;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
-    authoredOn?: string;
-    author?: string | FHIR.Reference;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    action?: FHIR.BackboneElement[];
+    replaces?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -63,6 +63,11 @@ export default function(props: Partial<RequestGroup_Props>) {
         resource.groupIdentifier = dt.identifier(props.groupIdentifier);
     }
 
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(props.code);
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.subject)) {
         resource.subject = dt.reference(props.subject);
     }
@@ -73,6 +78,12 @@ export default function(props: Partial<RequestGroup_Props>) {
 
     if (!_.isNil(props.author)) {
         resource.author = dt.reference(props.author);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+        resource.reasonCode = dt.concept(props.reasonCode);
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

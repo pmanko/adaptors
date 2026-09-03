@@ -1,12 +1,22 @@
-import { execute, request, get, post, put, patch, del, fn } from '../src';
+import {
+  execute,
+  request,
+  get,
+  post,
+  put,
+  patch,
+  del,
+  fn,
+} from '../src/index.js';
 import { enableMockClient } from '@openfn/language-common/util';
 import { expect, assert } from 'chai';
-import { getTLSOptions } from '../src/util';
+import { getTLSOptions } from '../src/util.js';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
 const testServer = enableMockClient('https://www.example.com', {
   defaultContentType: 'text',
+  maxRedirections: 5,
 });
 
 describe('execute()', () => {
@@ -51,6 +61,29 @@ describe('request()', () => {
     const state = {
       configuration: {
         baseUrl: 'https://www.example.com',
+      },
+    };
+
+    const result = await execute(request('GET', '/greeting'))(state);
+
+    expect(result.data).to.eql('hello');
+  });
+
+  it('should make a request using tls options from configuration', async () => {
+    const tls = { ca: 'test-ca-cert', cert: 'test-cert', key: 'test-key' };
+
+    enableMockClient('https://www.example.com', {
+      defaultContentType: 'text',
+      maxRedirections: 5,
+      tls,
+    })
+      .intercept({ path: '/greeting' })
+      .reply(200, 'hello');
+
+    const state = {
+      configuration: {
+        baseUrl: 'https://www.example.com',
+        tls,
       },
     };
 
@@ -500,7 +533,7 @@ describe('contentType', () => {
       )
     )(state);
 
-    expect(req.body instanceof FormData).to.equal(true);
+    expect(req.body?.constructor?.name).to.equal('FormData');
     expect(JSON.parse(response.data).id).to.eql(1);
   });
 
@@ -616,7 +649,7 @@ describe('post', () => {
     )({});
 
     expect(data).to.equal('ok');
-    expect(form instanceof FormData).to.equal(true);
+    expect(form?.constructor?.name).to.equal('FormData');
     expect(entries.length).to.equal(3);
   });
 

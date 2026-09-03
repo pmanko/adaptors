@@ -10,10 +10,9 @@ communicate with external systems. These adaptors are used by
 - [Quick Start](#quick-start)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
+  - [Alternative: Using nvm instead of asdf](#alternative-using-nvm-instead-of-asdf)
 - [Using Adaptors](#using-adaptors)
   - [With OpenFn CLI](#with-openfn-cli)
-    - [CLI Prerequisites](#cli-prerequisites)
-    - [Steps](#steps)
   - [With OpenFn Lightning](#with-openfn-lightning)
 - [Contributing](#contributing)
 - [Build Your Adaptor](#build-your-adaptor)
@@ -26,10 +25,6 @@ communicate with external systems. These adaptors are used by
 - [Pre-releases](#pre-releases)
 - [Metadata](#metadata)
 - [Useful Resources](#useful-resources)
-  - [Wiki](https://github.com/OpenFn/adaptors/wiki)
-  - [Documentation](https://docs.openfn.org)
-  - [Lightning](https://github.com/OpenFn/lightning)
-  - [CLI](https://github.com/openfn/kit)
 
 ## Quick Start
 
@@ -38,12 +33,14 @@ communicate with external systems. These adaptors are used by
 - [asdf](https://github.com/asdf-vm/asdf) installed globally
 - `Node.js` and `pnpm` managed via asdf
 
+
+
 ### Setup
 
 ```bash
 # Install asdf plugins
 asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf plugin-add pnpm
+asdf plugin add pnpm
 
 # Install dependencies and build
 asdf install
@@ -51,6 +48,22 @@ pnpm install
 pnpm build
 pnpm run setup
 ```
+
+### Alternative: Using nvm instead of asdf
+
+If you prefer managing Node.js with [nvm](https://github.com/nvm-sh/nvm), this project includes a `.nvmrc` file for node version switching:
+
+```bash
+# Use the Node.js version specified in .nvmrc
+nvm install
+nvm use
+
+# Install dependencies and build
+pnpm install
+pnpm build
+pnpm run setup
+```
+
 
 ## Using Adaptors
 
@@ -142,7 +155,7 @@ for setup and usage instructions.
 ## Build Your Adaptor
 
 We have a comprehensive
-[developer guide](https://github.com/OpenFn/adaptors/wiki/Build-a-new-Adaptor)
+[developer guide](https://github.com/OpenFn/adaptors/blob/main/wiki/build-a-new-adaptor.md)
 to help you build your own adaptor.
 
 ### Quick Start
@@ -161,17 +174,25 @@ to help you build your own adaptor.
    - `rectangle.png` (512x190px)
    - `square.png` (256x256px)
 
-3. [Implement your adaptor](https://github.com/OpenFn/adaptors/wiki/Adaptor-Writing-Best-Practice-&-Common-Patterns)
+3. [Implement your adaptor](https://github.com/OpenFn/adaptors/blob/main/wiki/best-practice.md)
    in `packages/<adaptor-name>/src/Adaptor.js`
 
-4. Test your adaptor:
-   [See unit test guideline](https://github.com/OpenFn/adaptors/wiki/Unit-Testing-Guide)
+4. Update `packages/<adaptor-name>/configuration-schema.json` and validate it
+   against
+   [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-release-notes):
+
+   ```bash
+   pnpm validate:schemas
+   ```
+
+5. Test your adaptor:
+   [See unit test guideline](https://github.com/OpenFn/adaptors/blob/main/wiki/unit-test-guide.md)
 
    ```bash
    pnpm test
    ```
 
-5. Create a test job in `tmp/job.js` and initial state in `tmp/state.json` then
+6. Create a test job in `tmp/job.js` and initial state in `tmp/state.json` then
    run:
 
    ```bash
@@ -181,9 +202,10 @@ to help you build your own adaptor.
 ### Best Practices
 
 - Update the adaptor's README
+- Keep `configuration-schema.json` valid against JSON Schema draft-07
 - Include comprehensive [JSDoc](https://jsdoc.app/) comments for all functions
-- [Write unit tests for your adaptor functions](https://github.com/OpenFn/adaptors/wiki/Unit-Testing-Guide)
-- [Follow the existing code style and patterns](https://github.com/OpenFn/adaptors/wiki/Adaptor-Writing-Best-Practice-&-Common-Patterns)
+- [Write unit tests for your adaptor functions](https://github.com/OpenFn/adaptors/blob/main/wiki/unit-test-guide.md)
+- [Follow the existing code style and patterns](https://github.com/OpenFn/adaptors/blob/main/wiki/best-practice.md)
 
 ### Testing Documentation Changes
 
@@ -217,7 +239,7 @@ pnpm changeset
 
 ## Versioning
 
-> If you're PR is approved, you can bump the version and add release dates.
+> If your PR is approved, you can bump the version and add release dates.
 
 - Run `pnpm run version` to bump the version and add release dates.
 - Commit your changes. And push to your PR branch.
@@ -264,7 +286,7 @@ date.
 ## Metadata
 
 Check the Wiki for the metadata creation guide:
-[https://github.com/OpenFn/adaptors/wiki/Magic-Metadata](https://github.com/OpenFn/adaptors/wiki/Magic-Metadata)
+[https://github.com/OpenFn/adaptors/blob/main/wiki/magic-functions.md](https://github.com/OpenFn/adaptors/blob/main/wiki/magic-functions.md)
 
 ## Useful Resources
 

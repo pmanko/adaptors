@@ -3,51 +3,51 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Task_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    instantiatesCanonical?: any;
-    instantiatesUri?: string;
+    authoredOn?: string;
     basedOn?: MaybeArray<string | FHIR.Reference>;
-    groupIdentifier?: string | FHIR.Identifier;
-    partOf?: MaybeArray<string | FHIR.Reference>;
-    status?: string;
-    statusReason?: string[] | FHIR.CodeableConcept;
     businessStatus?: string[] | FHIR.CodeableConcept;
-    intent?: string;
-    priority?: string;
     code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
     description?: string;
-    focus?: string | FHIR.Reference;
-    for?: string | FHIR.Reference;
     encounter?: string | FHIR.Reference;
     executionPeriod?: FHIR.Period;
-    authoredOn?: string;
+    extension?: FHIR.Extension[];
+    focus?: string | FHIR.Reference;
+    for?: string | FHIR.Reference;
+    groupIdentifier?: string | FHIR.Identifier;
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    input?: FHIR.BackboneElement[];
+    instantiatesCanonical?: any;
+    instantiatesUri?: string;
+    insurance?: MaybeArray<string | FHIR.Reference>;
+    intent?: string;
+    language?: string;
     lastModified?: string;
-    requester?: string | FHIR.Reference;
-    performerType?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    owner?: string | FHIR.Reference;
     location?: string | FHIR.Reference;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    note?: FHIR.Annotation[];
+    output?: FHIR.BackboneElement[];
+    owner?: string | FHIR.Reference;
+    partOf?: MaybeArray<string | FHIR.Reference>;
+    performerType?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    priority?: string;
     reasonCode?: string[] | FHIR.CodeableConcept;
     reasonReference?: string | FHIR.Reference;
-    insurance?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
     relevantHistory?: MaybeArray<string | FHIR.Reference>;
+    requester?: string | FHIR.Reference;
     restriction?: FHIR.BackboneElement;
-    input?: FHIR.BackboneElement[];
-    output?: FHIR.BackboneElement[];
+    status?: string;
+    statusReason?: string[] | FHIR.CodeableConcept;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -76,6 +76,21 @@ export default function(props: Partial<Task_Props>) {
         resource.partOf = dt.reference(props.partOf);
     }
 
+    if (!_.isNil(props.statusReason)) {
+        resource.statusReason = dt.concept(props.statusReason);
+        dt.ensureConceptText(resource.statusReason);
+    }
+
+    if (!_.isNil(props.businessStatus)) {
+        resource.businessStatus = dt.concept(props.businessStatus);
+        dt.ensureConceptText(resource.businessStatus);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/task-code", props.code));
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.focus)) {
         resource.focus = dt.reference(props.focus);
     }
@@ -92,12 +107,27 @@ export default function(props: Partial<Task_Props>) {
         resource.requester = dt.reference(props.requester);
     }
 
+    if (!_.isNil(props.performerType)) {
+        if (!Array.isArray(props.performerType)) { props.performerType = [props.performerType]; }
+
+        resource.performerType = props.performerType.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/performer-role", x))
+        );
+
+        dt.ensureConceptText(resource.performerType);
+    }
+
     if (!_.isNil(props.owner)) {
         resource.owner = dt.reference(props.owner);
     }
 
     if (!_.isNil(props.location)) {
         resource.location = dt.reference(props.location);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        resource.reasonCode = dt.concept(props.reasonCode);
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {
@@ -118,7 +148,7 @@ export default function(props: Partial<Task_Props>) {
         let src = props.restriction;
 
         let _restriction = {
-            ...item
+            ...src
         };
 
         resource.restriction = _restriction;

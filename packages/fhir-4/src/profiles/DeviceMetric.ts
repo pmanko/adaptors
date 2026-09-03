@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type DeviceMetric_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    calibration?: FHIR.BackboneElement[];
+    category?: string;
+    color?: string;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
+    measurementPeriod?: FHIR.Timing;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    operationalStatus?: string;
+    parent?: string | FHIR.Reference;
+    source?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     type?: string[] | FHIR.CodeableConcept;
     unit?: string[] | FHIR.CodeableConcept;
-    source?: string | FHIR.Reference;
-    parent?: string | FHIR.Reference;
-    operationalStatus?: string;
-    color?: string;
-    category?: string;
-    measurementPeriod?: FHIR.Timing;
-    calibration?: FHIR.BackboneElement[];
     [key: string]: any;
 };
 
@@ -39,6 +39,22 @@ export default function(props: Partial<DeviceMetric_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        resource.type = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/devicemetric-type", props.type)
+        );
+
+        dt.ensureConceptText(resource.type);
+    }
+
+    if (!_.isNil(props.unit)) {
+        resource.unit = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/devicemetric-type", props.unit)
+        );
+
+        dt.ensureConceptText(resource.unit);
     }
 
     if (!_.isNil(props.source)) {

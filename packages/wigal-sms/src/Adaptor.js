@@ -1,6 +1,6 @@
 import { execute as commonExecute } from '@openfn/language-common';
-import * as util from './util';
-import { createServer } from './mock';
+import * as util from './util.js';
+import { createServer } from './mock.js';
 
 /**
  * SMS Request Object
@@ -78,16 +78,18 @@ export function sendSms(data) {
 }
 
 export {
-  fn,
-  fnIf,
-  each,
-  merge,
-  field,
-  fields,
+  combine,
   cursor,
-  dateFns,
   dataPath,
   dataValue,
-  sourceValue,
+  dateFns,
+  each,
+  field,
+  fields,
+  fn,
+  fnIf,
   lastReferenceValue,
+  log,
+  merge,
+  sourceValue,
 } from '@openfn/language-common';

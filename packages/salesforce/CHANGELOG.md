@@ -1,5 +1,244 @@
 # @openfn/language-salesforce
 
+## 9.1.6 - 03 September 2026
+
+### Patch Changes
+
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 9.1.5 - 30 June 2026
+
+### Patch Changes
+
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 9.1.4 - 25 June 2026
+
+### Patch Changes
+
+- Fix connection
+
+## 9.1.3 - 25 June 2026
+
+### Patch Changes
+
+- Fix connection hanging on oauth clients
+
+## 9.1.2 - 25 June 2026
+
+### Patch Changes
+
+- 94552ab: Fix an issue where salesforce connections can hang indefinitely
+- 1cf2028: Better logging of auth errors
+
+## 9.1.1 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 9.1.0 - 21 May 2026
+
+### Minor Changes
+
+- bf26881: export `log` function from common
+
+## 9.0.9 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 9.0.8 - 07 April 2026
+
+### Patch Changes
+
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 9.0.7 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 9.0.6 - 25 February 2026
+
+### Patch Changes
+
+- 9133458: Add missing writeOnly to sensitive credential fields and fix typos in
+  configuration schemas
+
+## 9.0.5 - 24 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 9.0.4 - 09 February 2026
+
+### Patch Changes
+
+- Updated dependencies \[8ad6b98]
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 9.0.3 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 9.0.2 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 9.0.1 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 9.0.0 - 16 October 2025
+
+### Major Changes
+
+- 187b088: - Add `failOnError` option in bulk2 functions
+
+  - Default `failOnError` to `true` in bulk1 functions
+  - Fix `v8.0.0` migration guide typos
+  - Remove `BulkOptions` and `BulkQueryOptions` typedefs
+
+  ### Migration Guide
+
+  If you want to keep the old behavior, you can pass `failOnError: false` in the
+  options:
+
+  **For Example: Bulk upsert continue on error**
+
+  before:
+
+  ```js
+  bulk1.upsert(
+    'Account',
+    [{ External_Id__c: 'EXT001', Name: 'Upserted Name' }],
+    {
+      extIdField: 'External_Id__c',
+      pollInterval: 3000,
+    }
+  );
+  ```
+
+  now:
+
+  ```js
+  bulk1.upsert(
+    'Account',
+    [{ External_Id__c: 'EXT001', Name: 'Upserted Name' }],
+    {
+      extIdField: 'External_Id__c',
+      pollInterval: 3000,
+      failOnError: false,
+    }
+  );
+  ```
+
+  > Note: The `failOnError` option is available in `bulk1` and `bulk2`
+  > functions.
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 8.0.1 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 8.0.0 - 01 September 2025
+
+### Major Changes
+
+- fb30b2a: - Add `bulk1` functions for bulk insert, update, upsert, and destroy
+  - Removed `bulk()` function in favor of explicit `bulk1` and `bulk2` APIs
+  - Removed `bulkQuery()` function in favor of `bulk1.query()` and
+    `bulk2.query()`
+
+#### Migration Guide
+
+The legacy `bulk()` and `bulkQuery()` functions have been replaced with `bulk1`
+and `bulk2` APIs that provide better control and clarity:
+
+##### Bulk Operations
+
+**Before:**
+
+```javascript
+bulk('Account', 'insert', records, options);
+bulk('Account', 'update', records, options);
+bulk('Account', 'upsert', records, { extIdField: 'Id__c' });
+bulk('Account', 'delete', records, options);
+```
+
+**After:**
+
+```javascript
+// Bulk API 1.0 - More reliable, supports failOnError
+bulk1.insert('Account', records, { failOnError: true });
+bulk1.update('Account', records, { batchSize: 5000 });
+bulk1.upsert('Account', 'Id__c', records);
+bulk1.destroy('Account', records);
+
+// Bulk API 2.0 - Faster performance, simplified error handling
+bulk2.insert('Account', records);
+bulk2.update('Account', records);
+bulk2.upsert('Account', 'Id__c', records);
+bulk2.destroy('Account', records);
+```
+
+##### Bulk Queries
+
+**Before**
+
+```js
+bulkQuery('select Id, Name from Account');
+```
+
+**After**
+
+```js
+bulk1.query('select Id, Name from Account');
+// or
+bulk2.query('select Id, Name from Account');
+```
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
+## 7.2.1 - 28 August 2025
+
+### Patch Changes
+
+- b7af59a: - Update `package.json` description to be LLM-readable
+
 ## 7.2.0 - 04 August 2025
 
 ### Minor Changes

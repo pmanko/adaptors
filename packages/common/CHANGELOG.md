@@ -1,5 +1,99 @@
 ## 3.0.1 - 11 July 2025
 
+## 3.3.5 - 03 September 2026
+
+### Patch Changes
+
+- 654026d: Parse +json content types (e.g. application/fhir+json) as JSON so
+  error bodies are objects, not strings
+- fd1b2be: Security update
+
+## 3.3.4 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+
+## 3.3.3 - 27 May 2026
+
+### Patch Changes
+
+- 5276a86: Update ajv dependency
+
+## 3.3.2 - 20 May 2026
+
+### Patch Changes
+
+- 9d1e1ae: Add promise support in `combine()`
+
+## 3.3.1 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- a9b7597: Update dependencies (lodash)
+
+## 3.3.0 - 30 March 2026
+
+### Minor Changes
+
+- 295655f: - Add `encodeFormBody` utility for encoding plain objects into
+  `FormData`. Primitives are converted to strings, objects and arrays are JSON
+  stringified, `Blob` and `File` values are appended as-is, and null/undefined
+  values are skipped.
+
+## 3.2.3 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+
+## 3.2.2 - 09 February 2026
+
+### Patch Changes
+
+- 8ad6b98: fix: correct url construction on windows to prevent protocol
+  normalization issues
+- fix: compatibility with Windows for build tools and documentation generation
+- fix(common): resolve invalid URL scheme error on Windows
+
+## 3.2.1 - 28 November 2025
+
+### Patch Changes
+
+- cfc66df: Fix cursor date formatting
+
+## 3.2.0 - 12 November 2025
+
+### Minor Changes
+
+- 4d7a833: warn if there is redirect
+
+## 3.1.2 - 04 November 2025
+
+### Patch Changes
+
+- Add support for gzipped payloads
+
+## 3.1.1 - 16 October 2025
+
+### Patch Changes
+
+- 408a3a2: Update `undici` to `v7.15.0`
+
+## 3.1.0 - 18 September 2025
+
+### Minor Changes
+
+- e2bc436: Switch from `undici` Client to Agent to allow cross-redirection for
+  domains
+
+## 3.0.3 - 01 September 2025
+
+### Patch Changes
+
+- 1d60531: Update `fnIf` function docs
+
 ## 3.0.2 - 14 July 2025
 
 ### Patch Changes

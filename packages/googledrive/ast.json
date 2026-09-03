@@ -129,6 +129,67 @@
       "valid": true
     },
     {
+      "name": "list",
+      "params": [
+        "folderId",
+        "options"
+      ],
+      "docs": {
+        "description": "Lists files from a directory or root.",
+        "tags": [
+          {
+            "title": "public",
+            "description": null,
+            "type": null
+          },
+          {
+            "title": "example",
+            "description": "list('<id-of-folder-here>')",
+            "caption": "List files of a directory"
+          },
+          {
+            "title": "example",
+            "description": "list('<id-of-folder-here>',\n {\n   fields: ['id', 'name', 'modifiedTime'],\n   limit: 1,\n   orderBy: 'modifiedTime desc'\n})",
+            "caption": "Get the latest modified file in folder"
+          },
+          {
+            "title": "param",
+            "description": "ID of the folder to list files from. If not provided, lists files from the root.",
+            "type": {
+              "type": "NameExpression",
+              "name": "string"
+            },
+            "name": "folderId"
+          },
+          {
+            "title": "param",
+            "description": "Options for listing files",
+            "type": {
+              "type": "OptionalType",
+              "expression": {
+                "type": "NameExpression",
+                "name": "Object"
+              }
+            },
+            "name": "options"
+          },
+          {
+            "title": "state",
+            "description": "{DriveState}"
+          },
+          {
+            "title": "returns",
+            "description": "An operation that retrieves a list of files.",
+            "type": {
+              "type": "NameExpression",
+              "name": "Operation"
+            }
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
       "name": "update",
       "params": [
         "fileId",
@@ -234,7 +295,7 @@
         "operation"
       ],
       "docs": {
-        "description": "A custom operation that will only execute the function if the condition returns true",
+        "description": "Execute a function only when the condition returns true",
         "tags": [
           {
             "title": "public",
@@ -978,6 +1039,55 @@
         ]
       },
       "valid": false
+    },
+    {
+      "name": "log",
+      "params": [
+        "args"
+      ],
+      "docs": {
+        "description": "Outputs a message, like calling `console.log`. Use this at the top level of your job code, but not inside callbacks.",
+        "tags": [
+          {
+            "title": "public",
+            "description": null,
+            "type": null
+          },
+          {
+            "title": "function",
+            "description": null,
+            "name": null
+          },
+          {
+            "title": "example",
+            "description": "log('Patient List::', $.patients);",
+            "caption": "Log values from state"
+          },
+          {
+            "title": "example",
+            "description": "fn((state) => {\n  console.log(state.data);\n  return state;\n})",
+            "caption": "Use console.log inside a callback or fn block"
+          },
+          {
+            "title": "param",
+            "description": "A value or message to display in the logs",
+            "type": {
+              "type": "NameExpression",
+              "name": "any"
+            },
+            "name": "args"
+          },
+          {
+            "title": "returns",
+            "description": null,
+            "type": {
+              "type": "NameExpression",
+              "name": "Operation"
+            }
+          }
+        ]
+      },
+      "valid": true
     },
     {
       "name": "as",

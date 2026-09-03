@@ -3,30 +3,30 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Organization_Props = {
+    active?: boolean;
+    address?: FHIR.Address[];
+    alias?: string[];
+    contact?: FHIR.BackboneElement[];
+    contained?: any[];
+    endpoint?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    active?: boolean;
-    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     name?: string;
-    alias?: string[];
-    telecom?: FHIR.ContactPoint[];
-    address?: FHIR.Address[];
     partOf?: string | FHIR.Reference;
-    contact?: FHIR.BackboneElement[];
-    endpoint?: MaybeArray<string | FHIR.Reference>;
+    telecom?: FHIR.ContactPoint[];
+    text?: FHIR.Narrative;
+    type?: MaybeArray<string[] | FHIR.CodeableConcept>;
     [key: string]: any;
 };
 
@@ -39,6 +39,16 @@ export default function(props: Partial<Organization_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.type)) {
+        if (!Array.isArray(props.type)) { props.type = [props.type]; }
+
+        resource.type = props.type.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/organization-type", x))
+        );
+
+        dt.ensureConceptText(resource.type);
     }
 
     if (!_.isNil(props.partOf)) {

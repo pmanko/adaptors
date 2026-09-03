@@ -3,42 +3,42 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MedicationKnowledge_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    code?: string[] | FHIR.CodeableConcept;
-    status?: string;
-    manufacturer?: string | FHIR.Reference;
-    doseForm?: string[] | FHIR.CodeableConcept;
-    amount?: FHIR.Quantity;
-    synonym?: string[];
-    relatedMedicationKnowledge?: FHIR.BackboneElement[];
-    associatedMedication?: MaybeArray<string | FHIR.Reference>;
-    productType?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    monograph?: FHIR.BackboneElement[];
-    ingredient?: FHIR.BackboneElement[];
-    preparationInstruction?: FHIR.markdown;
-    intendedRoute?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    cost?: FHIR.BackboneElement[];
-    monitoringProgram?: FHIR.BackboneElement[];
     administrationGuidelines?: FHIR.BackboneElement[];
-    medicineClassification?: FHIR.BackboneElement[];
-    packaging?: FHIR.BackboneElement;
-    drugCharacteristic?: FHIR.BackboneElement[];
+    amount?: FHIR.Quantity;
+    associatedMedication?: MaybeArray<string | FHIR.Reference>;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
     contraindication?: MaybeArray<string | FHIR.Reference>;
-    regulatory?: FHIR.BackboneElement[];
+    cost?: FHIR.BackboneElement[];
+    doseForm?: string[] | FHIR.CodeableConcept;
+    drugCharacteristic?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
+    id?: string;
+    implicitRules?: string;
+    ingredient?: FHIR.BackboneElement[];
+    intendedRoute?: MaybeArray<string[] | FHIR.CodeableConcept>;
     kinetics?: FHIR.BackboneElement[];
+    language?: string;
+    manufacturer?: string | FHIR.Reference;
+    medicineClassification?: FHIR.BackboneElement[];
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    monitoringProgram?: FHIR.BackboneElement[];
+    monograph?: FHIR.BackboneElement[];
+    packaging?: FHIR.BackboneElement;
+    preparationInstruction?: string;
+    productType?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    regulatory?: FHIR.BackboneElement[];
+    relatedMedicationKnowledge?: FHIR.BackboneElement[];
+    status?: string;
+    synonym?: string[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -48,8 +48,24 @@ export default function(props: Partial<MedicationKnowledge_Props>) {
         ...props
     };
 
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medication-codes", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
+    }
+
     if (!_.isNil(props.manufacturer)) {
         resource.manufacturer = dt.reference(props.manufacturer);
+    }
+
+    if (!_.isNil(props.doseForm)) {
+        resource.doseForm = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/medication-form-codes", props.doseForm)
+        );
+
+        dt.ensureConceptText(resource.doseForm);
     }
 
     if (!_.isNil(props.relatedMedicationKnowledge)) {
@@ -69,6 +85,12 @@ export default function(props: Partial<MedicationKnowledge_Props>) {
     if (!_.isNil(props.associatedMedication)) {
         if (!Array.isArray(props.associatedMedication)) { props.associatedMedication = [props.associatedMedication]; }
         resource.associatedMedication = dt.reference(props.associatedMedication);
+    }
+
+    if (!_.isNil(props.productType)) {
+        if (!Array.isArray(props.productType)) { props.productType = [props.productType]; }
+        resource.productType = dt.concept(props.productType);
+        dt.ensureConceptText(resource.productType);
     }
 
     if (!_.isNil(props.monograph)) {
@@ -97,6 +119,16 @@ export default function(props: Partial<MedicationKnowledge_Props>) {
 
             resource.ingredient.push(_ingredient);
         }
+    }
+
+    if (!_.isNil(props.intendedRoute)) {
+        if (!Array.isArray(props.intendedRoute)) { props.intendedRoute = [props.intendedRoute]; }
+
+        resource.intendedRoute = props.intendedRoute.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/route-codes", x))
+        );
+
+        dt.ensureConceptText(resource.intendedRoute);
     }
 
     if (!_.isNil(props.cost)) {
@@ -159,7 +191,7 @@ export default function(props: Partial<MedicationKnowledge_Props>) {
         let src = props.packaging;
 
         let _packaging = {
-            ...item
+            ...src
         };
 
         resource.packaging = _packaging;

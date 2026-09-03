@@ -3,31 +3,31 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type BiologicallyDerivedProduct_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    collection?: FHIR.BackboneElement;
     contained?: any[];
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    language?: string;
+    manipulation?: FHIR.BackboneElement;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    parent?: MaybeArray<string | FHIR.Reference>;
+    processing?: FHIR.BackboneElement[];
     productCategory?: string;
     productCode?: string[] | FHIR.CodeableConcept;
-    status?: string;
-    request?: MaybeArray<string | FHIR.Reference>;
     quantity?: number;
-    parent?: MaybeArray<string | FHIR.Reference>;
-    collection?: FHIR.BackboneElement;
-    processing?: FHIR.BackboneElement[];
-    manipulation?: FHIR.BackboneElement;
+    request?: MaybeArray<string | FHIR.Reference>;
+    status?: string;
     storage?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -40,6 +40,11 @@ export default function(props: Partial<BiologicallyDerivedProduct_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.productCode)) {
+        resource.productCode = dt.concept(props.productCode);
+        dt.ensureConceptText(resource.productCode);
     }
 
     if (!_.isNil(props.request)) {
@@ -56,7 +61,7 @@ export default function(props: Partial<BiologicallyDerivedProduct_Props>) {
         let src = props.collection;
 
         let _collection = {
-            ...item
+            ...src
         };
 
         resource.collection = _collection;
@@ -80,7 +85,7 @@ export default function(props: Partial<BiologicallyDerivedProduct_Props>) {
         let src = props.manipulation;
 
         let _manipulation = {
-            ...item
+            ...src
         };
 
         resource.manipulation = _manipulation;

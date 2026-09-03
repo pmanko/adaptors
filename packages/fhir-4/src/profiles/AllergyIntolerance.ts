@@ -3,36 +3,36 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type AllergyIntolerance_Props = {
+    asserter?: string | FHIR.Reference;
+    category?: string[];
+    clinicalStatus?: string[] | FHIR.CodeableConcept;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    criticality?: string;
+    encounter?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    lastOccurrence?: string;
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    clinicalStatus?: string[] | FHIR.CodeableConcept;
-    verificationStatus?: string[] | FHIR.CodeableConcept;
-    type?: string;
-    category?: string[];
-    criticality?: string;
-    code?: string[] | FHIR.CodeableConcept;
-    patient?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
+    note?: FHIR.Annotation[];
     onset?: string | FHIR.Age | FHIR.Period | FHIR.Range;
+    patient?: string | FHIR.Reference;
+    reaction?: FHIR.BackboneElement[];
     recordedDate?: string;
     recorder?: string | FHIR.Reference;
-    asserter?: string | FHIR.Reference;
-    lastOccurrence?: string;
-    note?: FHIR.Annotation[];
-    reaction?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    type?: string;
+    verificationStatus?: string[] | FHIR.CodeableConcept;
     [key: string]: any;
 };
 
@@ -45,6 +45,32 @@ export default function(props: Partial<AllergyIntolerance_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.clinicalStatus)) {
+        resource.clinicalStatus = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical|4.3.0",
+            props.clinicalStatus
+        ));
+
+        dt.ensureConceptText(resource.clinicalStatus);
+    }
+
+    if (!_.isNil(props.verificationStatus)) {
+        resource.verificationStatus = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/allergyintolerance-verification|4.3.0",
+            props.verificationStatus
+        ));
+
+        dt.ensureConceptText(resource.verificationStatus);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/allergyintolerance-code", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.patient)) {

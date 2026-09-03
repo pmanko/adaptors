@@ -16,14 +16,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.17.1]
+        node-version: [22.20.0]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
       - name: Setup node ${{ matrix.node-version }}
         # https://github.com/actions/setup-node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
@@ -37,6 +37,8 @@ jobs:
           GH_EMAIL: ${{ secrets.GH_EMAIL }}
       - name: Installing packages
         run: pnpm install --frozen-lockfile
+      - name: Build Tools
+        run: pnpm build:tools
       - name: Build docs
         run: pnpm build:adaptors docs
       - name: Generate docs.json

@@ -3,35 +3,35 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type GuidanceResponse_Props = {
+    contained?: any[];
+    dataRequirement?: FHIR.DataRequirement[];
+    encounter?: string | FHIR.Reference;
+    evaluationMessage?: MaybeArray<string | FHIR.Reference>;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    requestIdentifier?: string | FHIR.Identifier;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
     module?: string | any | string[] | FHIR.CodeableConcept;
-    status?: string;
-    subject?: string | FHIR.Reference;
-    encounter?: string | FHIR.Reference;
+    note?: FHIR.Annotation[];
     occurrenceDateTime?: string;
+    outputParameters?: string | FHIR.Reference;
     performer?: string | FHIR.Reference;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    evaluationMessage?: MaybeArray<string | FHIR.Reference>;
-    outputParameters?: string | FHIR.Reference;
+    requestIdentifier?: string | FHIR.Identifier;
     result?: string | FHIR.Reference;
-    dataRequirement?: FHIR.DataRequirement[];
+    status?: string;
+    subject?: string | FHIR.Reference;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -65,6 +65,12 @@ export default function(props: Partial<GuidanceResponse_Props>) {
 
     if (!_.isNil(props.performer)) {
         resource.performer = dt.reference(props.performer);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+        resource.reasonCode = dt.concept(props.reasonCode);
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

@@ -3,32 +3,32 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type DetectedIssue_Props = {
+    author?: string | FHIR.Reference;
+    code?: string[] | FHIR.CodeableConcept;
+    contained?: any[];
+    detail?: string;
+    evidence?: FHIR.BackboneElement[];
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identified?: string | FHIR.Period;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicated?: MaybeArray<string | FHIR.Reference>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    code?: string[] | FHIR.CodeableConcept;
-    severity?: string;
-    patient?: string | FHIR.Reference;
-    identified?: string | FHIR.Period;
-    author?: string | FHIR.Reference;
-    implicated?: MaybeArray<string | FHIR.Reference>;
-    evidence?: FHIR.BackboneElement[];
-    detail?: string;
-    reference?: string;
+    meta?: FHIR.Meta;
     mitigation?: FHIR.BackboneElement[];
+    modifierExtension?: FHIR.Extension[];
+    patient?: string | FHIR.Reference;
+    reference?: string;
+    severity?: string;
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -41,6 +41,14 @@ export default function(props: Partial<DetectedIssue_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.code)) {
+        resource.code = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/detectedissue-category", props.code)
+        );
+
+        dt.ensureConceptText(resource.code);
     }
 
     if (!_.isNil(props.patient)) {

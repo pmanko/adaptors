@@ -3,33 +3,33 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type VerificationResult_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    attestation?: FHIR.BackboneElement;
     contained?: any[];
     extension?: FHIR.Extension[];
+    failureAction?: string[] | FHIR.CodeableConcept;
+    frequency?: FHIR.Timing;
+    id?: string;
+    implicitRules?: string;
+    language?: string;
+    lastPerformed?: string;
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    target?: MaybeArray<string | FHIR.Reference>;
-    targetLocation?: string[];
     need?: string[] | FHIR.CodeableConcept;
+    nextScheduled?: string;
+    primarySource?: FHIR.BackboneElement[];
     status?: string;
     statusDate?: string;
-    validationType?: string[] | FHIR.CodeableConcept;
+    target?: MaybeArray<string | FHIR.Reference>;
+    targetLocation?: string[];
+    text?: FHIR.Narrative;
     validationProcess?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    frequency?: FHIR.Timing;
-    lastPerformed?: string;
-    nextScheduled?: string;
-    failureAction?: string[] | FHIR.CodeableConcept;
-    primarySource?: FHIR.BackboneElement[];
-    attestation?: FHIR.BackboneElement;
+    validationType?: string[] | FHIR.CodeableConcept;
     validator?: FHIR.BackboneElement[];
     [key: string]: any;
 };
@@ -43,6 +43,42 @@ export default function(props: Partial<VerificationResult_Props>) {
     if (!_.isNil(props.target)) {
         if (!Array.isArray(props.target)) { props.target = [props.target]; }
         resource.target = dt.reference(props.target);
+    }
+
+    if (!_.isNil(props.need)) {
+        resource.need = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/verificationresult-need", props.need)
+        );
+
+        dt.ensureConceptText(resource.need);
+    }
+
+    if (!_.isNil(props.validationType)) {
+        resource.validationType = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/verificationresult-validation-type",
+            props.validationType
+        ));
+
+        dt.ensureConceptText(resource.validationType);
+    }
+
+    if (!_.isNil(props.validationProcess)) {
+        if (!Array.isArray(props.validationProcess)) { props.validationProcess = [props.validationProcess]; }
+
+        resource.validationProcess = props.validationProcess.map((x) => dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/verificationresult-validation-process", x)
+        ));
+
+        dt.ensureConceptText(resource.validationProcess);
+    }
+
+    if (!_.isNil(props.failureAction)) {
+        resource.failureAction = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/verificationresult-failure-action",
+            props.failureAction
+        ));
+
+        dt.ensureConceptText(resource.failureAction);
     }
 
     if (!_.isNil(props.primarySource)) {
@@ -63,7 +99,7 @@ export default function(props: Partial<VerificationResult_Props>) {
         let src = props.attestation;
 
         let _attestation = {
-            ...item
+            ...src
         };
 
         resource.attestation = _attestation;

@@ -1,5 +1,9 @@
-import { execute as commonExecute } from '@openfn/language-common';
+import {
+  execute as commonExecute,
+  composeNextState,
+} from '@openfn/language-common';
 import { expandReferences } from '@openfn/language-common/util';
+import twilio from 'twilio';
 
 /**
  * Execute a sequence of operations.
@@ -46,20 +50,13 @@ export function sendSMS(params) {
     const [resolvedParams] = expandReferences(state, params);
     const { body, from, to } = resolvedParams;
 
-    const client = require('twilio')(accountSid, authToken);
+    const client = twilio(accountSid, authToken);
 
-    return new Promise((resolve, reject) => {
-      client.messages
-        .create({ body, from, to })
-        .then(response => {
-          if (response.errorCode) {
-            console.log(response);
-            reject(response.errorCode);
-          }
-          console.log(response);
-          return response;
-        })
-        .done();
+    return client.messages.create({ body, from, to }).then(response => {
+      if (response.errorCode) {
+        throw response.errorCode;
+      }
+      return composeNextState(state, response);
     });
   };
 }
@@ -68,15 +65,17 @@ export function sendSMS(params) {
 // export function bulkSMS(params) {}
 
 export {
-  field,
-  fields,
-  sourceValue,
   alterState,
-  fn,
-  fnIf,
-  each,
-  merge,
+  combine,
   dataPath,
   dataValue,
+  each,
+  field,
+  fields,
+  fn,
+  fnIf,
   lastReferenceValue,
+  log,
+  merge,
+  sourceValue,
 } from '@openfn/language-common';

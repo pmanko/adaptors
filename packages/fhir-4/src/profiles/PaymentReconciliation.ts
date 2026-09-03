@@ -3,35 +3,35 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type PaymentReconciliation_Props = {
+    contained?: any[];
+    created?: string;
+    detail?: FHIR.BackboneElement[];
+    disposition?: string;
+    extension?: FHIR.Extension[];
+    formCode?: string[] | FHIR.CodeableConcept;
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    status?: string;
-    period?: FHIR.Period;
-    created?: string;
+    outcome?: string;
+    paymentAmount?: FHIR.Money;
+    paymentDate?: string;
+    paymentIdentifier?: string | FHIR.Identifier;
     paymentIssuer?: string | FHIR.Reference;
+    period?: FHIR.Period;
+    processNote?: FHIR.BackboneElement[];
     request?: string | FHIR.Reference;
     requestor?: string | FHIR.Reference;
-    outcome?: string;
-    disposition?: string;
-    paymentDate?: string;
-    paymentAmount?: FHIR.Money;
-    paymentIdentifier?: string | FHIR.Identifier;
-    detail?: FHIR.BackboneElement[];
-    formCode?: string[] | FHIR.CodeableConcept;
-    processNote?: FHIR.BackboneElement[];
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -74,6 +74,11 @@ export default function(props: Partial<PaymentReconciliation_Props>) {
 
             resource.detail.push(_detail);
         }
+    }
+
+    if (!_.isNil(props.formCode)) {
+        resource.formCode = dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/forms", props.formCode));
+        dt.ensureConceptText(resource.formCode);
     }
 
     if (!_.isNil(props.processNote)) {

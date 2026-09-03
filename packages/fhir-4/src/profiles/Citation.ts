@@ -3,49 +3,49 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Citation_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    name?: string;
-    title?: string;
-    status?: string;
-    experimental?: boolean;
-    date?: string;
-    publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    description?: FHIR.markdown;
-    useContext?: FHIR.UsageContext[];
-    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    purpose?: FHIR.markdown;
-    copyright?: FHIR.markdown;
     approvalDate?: string;
-    lastReviewDate?: string;
-    effectivePeriod?: FHIR.Period;
     author?: FHIR.ContactDetail[];
-    editor?: FHIR.ContactDetail[];
-    reviewer?: FHIR.ContactDetail[];
-    endorser?: FHIR.ContactDetail[];
-    summary?: FHIR.BackboneElement[];
-    classification?: FHIR.BackboneElement[];
-    note?: FHIR.Annotation[];
-    currentState?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    statusDate?: FHIR.BackboneElement[];
-    relatesTo?: FHIR.BackboneElement[];
     citedArtifact?: FHIR.BackboneElement;
+    classification?: FHIR.BackboneElement[];
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    copyright?: string;
+    currentState?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    date?: string;
+    description?: string;
+    editor?: FHIR.ContactDetail[];
+    effectivePeriod?: FHIR.Period;
+    endorser?: FHIR.ContactDetail[];
+    experimental?: boolean;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
+    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    lastReviewDate?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: string;
+    note?: FHIR.Annotation[];
+    publisher?: string;
+    purpose?: string;
+    relatesTo?: FHIR.BackboneElement[];
+    reviewer?: FHIR.ContactDetail[];
+    status?: string;
+    statusDate?: FHIR.BackboneElement[];
+    summary?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    title?: string;
+    url?: string;
+    useContext?: FHIR.UsageContext[];
+    version?: string;
     [key: string]: any;
 };
 
@@ -58,6 +58,16 @@ export default function(props: Partial<Citation_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.jurisdiction)) {
+        if (!Array.isArray(props.jurisdiction)) { props.jurisdiction = [props.jurisdiction]; }
+
+        resource.jurisdiction = props.jurisdiction.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/jurisdiction", x))
+        );
+
+        dt.ensureConceptText(resource.jurisdiction);
     }
 
     if (!_.isNil(props.summary)) {
@@ -86,6 +96,16 @@ export default function(props: Partial<Citation_Props>) {
 
             resource.classification.push(_classification);
         }
+    }
+
+    if (!_.isNil(props.currentState)) {
+        if (!Array.isArray(props.currentState)) { props.currentState = [props.currentState]; }
+
+        resource.currentState = props.currentState.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/citation-status-type", x))
+        );
+
+        dt.ensureConceptText(resource.currentState);
     }
 
     if (!_.isNil(props.statusDate)) {
@@ -120,7 +140,7 @@ export default function(props: Partial<Citation_Props>) {
         let src = props.citedArtifact;
 
         let _citedArtifact = {
-            ...item
+            ...src
         };
 
         resource.citedArtifact = _citedArtifact;

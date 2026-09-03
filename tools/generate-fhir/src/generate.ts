@@ -9,10 +9,11 @@ import fetchSpec, { Meta } from './fetch-spec';
 import generateSchema from './generate-schema';
 import generateCode from './generate-code';
 import withDisclaimer from './util/disclaimer';
-import generateDTS, { generateDataTypes } from './generate-dts';
+import generateDTS, { generateDataTypes, generateTypedefs } from './generate-dts';
 import generateTests from './generate-tests';
 
 import toolPkg from '../package.json' assert { type: 'json' };
+import { ValueSets } from './codegen/values';
 
 export type Options = {
   /** The base fhir package to import datatypes and functions from, ie, @openfn/language-fhir-4 */
@@ -27,6 +28,8 @@ export type Options = {
   /** Path to a mappings file (relative to monorepo root). This will be copied into build/mappings in the new generator */
   mappings?: string;
 
+  include?: string[];
+
   /** Should we generate tests? */
   tests?: boolean;
 
@@ -37,12 +40,27 @@ export type Options = {
   simpleBuilders?: boolean;
 };
 
+// TODO spec this out properly
+type GenContext = {
+  schema: any;
+  mappings: any;
+  adaptorPath: string;
+  options: Options;
+  valueSets: any;
+  fhirTypes: any;
+};
+
 const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
-  const { base, respec, spec } = options;
+  // Store all build context on an object so that we can pass it down to builder functions
+  const context = {
+    options,
+  } as GenContext;
+  const { respec, spec } = options;
 
   const dir = path.dirname(import.meta.url.replace('file://', ''));
   const monoRepoRoot = path.resolve(dir, `../../../`);
   const adaptorPath = path.resolve(monoRepoRoot, 'packages', adaptorName);
+  context.adaptorPath = adaptorPath;
   const pkgPath = path.resolve(adaptorPath, 'package.json');
 
   const readPkg = async () => {
@@ -111,9 +129,19 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
     }
     console.log(`Package ${adaptorName} generated!`);
   }
+  context.mappings = mappings;
+  if (options.include) {
+    console.log('Overriding mapping.include from CLI argument');
+    if (Array.isArray(options.include)) {
+      context.mappings.include = options.include;
+    } else {
+      context.mappings.include = [options.include];
+    }
+  }
 
   // Load options which may have been saved to the package
-  const { simpleBuilders } = options;
+  // Note: base must be read AFTER pkg.fhir.options is merged in above
+  const { simpleBuilders, base } = options;
 
   // Now generate from the spec
   const specPath = path.resolve(adaptorPath, 'spec', 'spec.json');
@@ -122,48 +150,94 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
   } catch (e) {
     console.log('Error loading spec.json!');
     console.log(
-      `You may need to redownload the spec with "pnpm generate-fhir ${adaptorName} --respec"`
+      `You may need to redownload the spec with "pnpm generate-fhir ${adaptorName} --respec"`,
     );
     console.log(e);
   }
 
   let fhirTypes = {};
-  try {
-    await access(specPath);
-    console.log('Generating datatype schemas');
-    const dtSpecPath = path.resolve(adaptorPath, 'spec', 'spec-types.json');
-    // Note: when generating datatypes we ignore the user's mappings and generate everything
-    // maybe we need to take a different mappings object?
-    const dtSchema = await generateSchema(dtSpecPath);
-    const { src, index } = generateDataTypes(dtSchema, mappings);
-    fhirTypes = index;
-    const dtsPath = path.resolve(adaptorPath, 'src/fhir.ts');
-    console.log('Writing datatype schemas to ', dtsPath);
-    await writeFile(dtsPath, withDisclaimer(src));
-  } catch (e) {
-    console.log('Skipping datatype generation');
-    console.log(e);
+  if (base) {
+    // if a base adaptor is provided, we need to load the base type definitions from there
+    // TODO need to generate this list based on the base adaptor
+    // may need to cross-reference to only use types that are NOT defined in the IG
+    fhirTypes = {
+      Age: 1,
+      Address: 1,
+      Attachment: 1,
+      Annotation: 1,
+      BackboneElement: 1,
+      Coding: 1,
+      CodeableConcept: 1,
+      ContactPoint: 1,
+      Duration: 1,
+      Extension: 1,
+      HumanName: 1,
+      Identifier: 1,
+      Meta: 1,
+      Narrative: 1,
+      Reference: 1,
+      Range: 1,
+      Ratio: 1,
+      Period: 1,
+      Quantity: 1,
+      Dosage: 1,
+      Timing: 1,
+      SampledData: 1,
+
+      Signature: 1,
+      ContactDetail: 1,
+      Contributor: 1,
+      DataRequirement: 1,
+      Expression: 1,
+      ParameterDefinition: 1,
+      RelatedArtifact: 1,
+      TriggerDefinition: 1,
+      UsageContext: 1,
+      Money: 1,
+      Count: 1,
+      Distance: 1,
+    };
+  } else {
+    try {
+      await access(specPath);
+      console.log('Generating datatype schemas');
+      const dtSpecPath = path.resolve(adaptorPath, 'spec', 'spec-types.json');
+      // Note: when generating datatypes we ignore the user's mappings and generate everything
+      // maybe we need to take a different mappings object?
+      const dtSchema = await generateSchema(dtSpecPath, {}, { isBase: true });
+      const { src, index } = generateDataTypes(dtSchema, mappings);
+      fhirTypes = index;
+      const dtsPath = path.resolve(adaptorPath, 'src/fhir.ts');
+      console.log('Writing datatype schemas to ', dtsPath);
+      await writeFile(dtsPath, withDisclaimer(src));
+
+      const typedefs = generateTypedefs(dtSchema, mappings);
+      const typedefsPath = path.resolve(adaptorPath, 'src/typedefs.js');
+      console.log('Writing JSDoc typedefs to ', typedefsPath);
+      await writeFile(typedefsPath, withDisclaimer(typedefs));
+    } catch (e) {
+      console.log('Skipping datatype generation');
+    }
   }
+  context.fhirTypes = fhirTypes;
 
   console.log('Generating resource schemas');
   const schema = await generateSchema(specPath, mappings);
+  context.schema = schema;
 
-  console.log('Generating code');
-  const src = generateCode(schema, mappings, {
-    simpleSignatures: simpleBuilders,
-    fhirTypes,
-  });
-
-  const srcPath = path.resolve(adaptorPath, 'src/builders.ts');
-  console.log('Writing source to ', srcPath);
-  await writeFile(srcPath, withDisclaimer(src.builders));
-  await mkdir(path.resolve(adaptorPath, 'src/profiles'), { recursive: true });
-  for (const profile in src.profiles) {
-    await writeFile(
-      path.resolve(adaptorPath, 'src/profiles', `${profile}.ts`),
-      withDisclaimer(src.profiles[profile])
-    );
+  // TODO better control of this path
+  // load schemas direct from the file so that we can skip schema gen
+  const valueSetsRaw = await readFile(
+    path.resolve(adaptorPath, 'schema/valuesets.json'),
+    'utf8',
+  );
+  let valueSets: ValueSets;
+  if (valueSetsRaw) {
+    valueSets = JSON.parse(valueSetsRaw);
+    context.valueSets = valueSets;
   }
+
+  await handleCode(context);
 
   if (options.tests) {
     console.log('Generating tests');
@@ -179,6 +253,29 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
     }
   }
 
+  // Finally, update package json metadata
+  const pkg = await readPkg();
+  updateMeta(pkg, {
+    ...meta,
+    adaptorGeneratedDate: new Date().toISOString(),
+    generatorVersion: toolPkg.version,
+    options: ['simpleBuilders', 'base']
+      .filter(o => o in options)
+      .reduce((acc: any, o: string) => {
+        acc[o] = options[o];
+        return acc;
+      }, {}),
+  });
+
+  // If base provided, ensure there's a dependency
+  if (base) {
+    const baseName = `@openfn/language-${base}`;
+    if (!pkg.dependencies[baseName]) {
+      pkg.dependencies[baseName] = 'workspace:*';
+      await writePkg(pkg);
+    }
+  }
+
   console.log('Writing types to ./types');
   await mkdir(path.resolve(adaptorPath, 'types'), { recursive: true });
 
@@ -187,23 +284,10 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
     '--allowJs',
     '--declaration',
     '--emitDeclarationOnly',
+    '--skipLibCheck',
     '--lib es2020',
     `--declarationDir ${path.resolve(adaptorPath, 'types')}`,
   ];
-
-  // Finally, update package json metadata
-  const pkg = await readPkg();
-  updateMeta(pkg, {
-    ...meta,
-    adaptorGeneratedDate: new Date().toISOString(),
-    generatorVersion: toolPkg.version,
-    options: ['simpleBuilders']
-      .filter(o => o in options)
-      .reduce((acc: any, o: string) => {
-        acc[o] = options[o];
-        return acc;
-      }, {}),
-  });
 
   const pathToEntry = path.resolve(adaptorPath, 'src', 'index.ts');
 
@@ -212,8 +296,14 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
     `pnpm exec tsc ${tscArgs.join(' ')} ${pathToEntry}`,
     {},
     async (err, stderr) => {
-      // console.log('>', err);
-      // console.log('>', stderr);
+      // errors are usually bogus - except when they're not!!
+      // See https://github.com/OpenFn/adaptors/issues/1522 for even more vaguery
+      // if (err) {
+      //   console.log('>', err);
+      // }
+      // if (stderr) {
+      //   console.log('>', stderr);
+      // }
       console.log('Bundling DTS files');
       const bundle = await rollup({
         // Only bundle builders and profile together
@@ -227,7 +317,7 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
 
       await writeFile(
         path.resolve(adaptorPath, 'types', 'builders.d.ts'),
-        withDisclaimer(dtsBundle.output[0].code)
+        withDisclaimer(dtsBundle.output[0].code),
       );
 
       // finally remove the profiles and core fhir types
@@ -235,10 +325,45 @@ const generateAdaptor = async (adaptorName: string, options: Options = {}) => {
         recursive: true,
         force: true,
       });
-      await rm(path.resolve(adaptorPath, 'types', 'fhir.d.ts'));
-      await rm(path.resolve(adaptorPath, 'types', 'datatypes.d.ts'));
-    }
+      await rm(path.resolve(adaptorPath, 'types', 'fhir.d.ts'), {
+        force: true,
+      });
+      await rm(path.resolve(adaptorPath, 'types', 'datatypes.d.ts'), {
+        force: true,
+      });
+    },
   );
 };
+
+async function handleCode(context: GenContext) {
+  const { schema, mappings, adaptorPath, options, valueSets, fhirTypes } =
+    context;
+
+  console.log('Generating code');
+  const src = generateCode(schema, mappings, {
+    simpleSignatures: options.simpleBuilders,
+    fhirTypes,
+    base: options.base,
+    valueSets,
+    generateMeta: mappings.generateMeta,
+  });
+
+  const srcPath = path.resolve(adaptorPath, 'src/builders.ts');
+  console.log('Writing source to ', srcPath);
+  await writeFile(srcPath, withDisclaimer(src.builders));
+  await mkdir(path.resolve(adaptorPath, 'src/profiles'), { recursive: true });
+  for (const profile in src.profiles) {
+    await writeFile(
+      path.resolve(adaptorPath, 'src/profiles', `${profile}.ts`),
+      withDisclaimer(src.profiles[profile]),
+    );
+  }
+  if (src.values) {
+    await writeFile(
+      path.resolve(adaptorPath, 'src', `values.ts`),
+      withDisclaimer(src.values),
+    );
+  }
+}
 
 export default generateAdaptor;

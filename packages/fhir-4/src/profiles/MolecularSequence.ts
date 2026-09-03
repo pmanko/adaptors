@@ -3,36 +3,36 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type MolecularSequence_Props = {
+    contained?: any[];
+    coordinateSystem?: number;
+    device?: string | FHIR.Reference;
+    extension?: FHIR.Extension[];
     id?: string;
-    meta?: FHIR.Meta;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
     implicitRules?: string;
     language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
+    meta?: FHIR.Meta;
     modifierExtension?: FHIR.Extension[];
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    type?: string;
-    coordinateSystem?: number;
-    patient?: string | FHIR.Reference;
-    specimen?: string | FHIR.Reference;
-    device?: string | FHIR.Reference;
-    performer?: string | FHIR.Reference;
-    quantity?: FHIR.Quantity;
-    referenceSeq?: FHIR.BackboneElement;
-    variant?: FHIR.BackboneElement[];
     observedSeq?: string;
-    quality?: FHIR.BackboneElement[];
-    readCoverage?: number;
-    repository?: FHIR.BackboneElement[];
+    patient?: string | FHIR.Reference;
+    performer?: string | FHIR.Reference;
     pointer?: MaybeArray<string | FHIR.Reference>;
+    quality?: FHIR.BackboneElement[];
+    quantity?: FHIR.Quantity;
+    readCoverage?: number;
+    referenceSeq?: FHIR.BackboneElement;
+    repository?: FHIR.BackboneElement[];
+    specimen?: string | FHIR.Reference;
     structureVariant?: FHIR.BackboneElement[];
+    text?: FHIR.Narrative;
+    type?: string;
+    variant?: FHIR.BackboneElement[];
     [key: string]: any;
 };
 
@@ -67,7 +67,7 @@ export default function(props: Partial<MolecularSequence_Props>) {
         let src = props.referenceSeq;
 
         let _referenceSeq = {
-            ...item
+            ...src
         };
 
         resource.referenceSeq = _referenceSeq;

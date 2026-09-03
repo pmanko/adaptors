@@ -1,5 +1,156 @@
 # @openfn/language-collections
 
+## 0.9.4 - 03 September 2026
+
+### Patch Changes
+
+- fd1b2be: Security update
+- Updated dependencies \[654026d]
+- Updated dependencies \[fd1b2be]
+  - @openfn/language-common@3.3.5
+
+## 0.9.3 - 30 June 2026
+
+### Patch Changes
+
+- c5f8728: Update undici dependency
+- Updated dependencies \[c5f8728]
+  - @openfn/language-common@3.3.4
+
+## 0.9.2 - 27 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[5276a86]
+  - @openfn/language-common@3.3.3
+
+## 0.9.1 - 20 May 2026
+
+### Patch Changes
+
+- Updated dependencies \[9d1e1ae]
+  - @openfn/language-common@3.3.2
+
+## 0.9.0 - 20 April 2026
+
+### Minor Changes
+
+- Add support for project\_id on config
+
+## 0.8.6 - 14 April 2026
+
+### Patch Changes
+
+- 0df6720: Add docs for a missing argument on `keygen` param
+- Add support for `project_id` on config
+
+## 0.8.5 - 07 April 2026
+
+### Patch Changes
+
+- add9748: Update dependencies (undici)
+- Updated dependencies \[add9748]
+- Updated dependencies \[a9b7597]
+  - @openfn/language-common@3.3.1
+
+## 0.8.4 - 30 March 2026
+
+### Patch Changes
+
+- Updated dependencies \[295655f]
+  - @openfn/language-common@3.3.0
+
+## 0.8.3 - 25 February 2026
+
+### Patch Changes
+
+- 9133458: Add missing writeOnly to sensitive credential fields and fix typos in
+  configuration schemas
+
+## 0.8.2 - 24 February 2026
+
+### Patch Changes
+
+- 856f85c: Security updates
+- Updated dependencies \[856f85c]
+  - @openfn/language-common@3.2.3
+
+## 0.8.1 - 09 February 2026
+
+### Patch Changes
+
+- 8ad6b98: fix: use posix path joining for url paths to support windows
+
+  Note: Updated tests and URL construction to use `path.posix.join` to avoid
+  `MockNotMatchedError` caused by backslashes on Windows.
+
+  ```
+  ---
+  "@openfn/language-collections": patch
+  ---
+
+  fix: use posix path joining for url paths to support windows
+  ```
+
+- Updated dependencies \[8ad6b98]
+
+- Updated dependencies \[8ad6b98]
+  - @openfn/language-common@3.2.2
+
+## 0.8.0 - 30 December 2025
+
+### Minor Changes
+
+- 6aeb1d1: Expose mock API
+
+## 0.7.19 - 28 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[cfc66df]
+  - @openfn/language-common@3.2.1
+
+## 0.7.18 - 12 November 2025
+
+### Patch Changes
+
+- Updated dependencies \[4d7a833]
+  - @openfn/language-common@3.2.0
+
+## 0.7.17 - 04 November 2025
+
+### Patch Changes
+
+- Updated dependencies
+  - @openfn/language-common@3.1.2
+
+## 0.7.16 - 16 October 2025
+
+### Patch Changes
+
+- Updated dependencies \[408a3a2]
+  - @openfn/language-common@3.1.1
+
+## 0.7.15 - 18 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[e2bc436]
+  - @openfn/language-common@3.1.0
+
+## 0.7.14 - 01 September 2025
+
+### Patch Changes
+
+- Updated dependencies \[1d60531]
+  - @openfn/language-common@3.0.3
+
+## 0.7.13 - 28 August 2025
+
+### Patch Changes
+
+- b7af59a: - Update `package.json` description to be LLM-readable
+
 ## 0.7.12 - 14 July 2025
 
 ### Patch Changes

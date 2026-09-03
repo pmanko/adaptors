@@ -3,38 +3,38 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type FamilyMemberHistory_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
+    age?: FHIR.Age | FHIR.Range | string;
+    born?: FHIR.Period | string;
+    condition?: FHIR.BackboneElement[];
     contained?: any[];
+    dataAbsentReason?: string[] | FHIR.CodeableConcept;
+    date?: string;
+    deceased?: boolean | FHIR.Age | FHIR.Range | string;
+    estimatedAge?: boolean;
     extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
+    id?: string;
     identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     instantiatesCanonical?: any[];
     instantiatesUri?: string[];
-    status?: string;
-    dataAbsentReason?: string[] | FHIR.CodeableConcept;
-    patient?: string | FHIR.Reference;
-    date?: string;
+    language?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
     name?: string;
-    relationship?: string[] | FHIR.CodeableConcept;
-    sex?: string[] | FHIR.CodeableConcept;
-    born?: FHIR.Period | string;
-    age?: FHIR.Age | FHIR.Range | string;
-    estimatedAge?: boolean;
-    deceased?: boolean | FHIR.Age | FHIR.Range | string;
+    note?: FHIR.Annotation[];
+    patient?: string | FHIR.Reference;
     reasonCode?: MaybeArray<string[] | FHIR.CodeableConcept>;
     reasonReference?: MaybeArray<string | FHIR.Reference>;
-    note?: FHIR.Annotation[];
-    condition?: FHIR.BackboneElement[];
+    relationship?: string[] | FHIR.CodeableConcept;
+    sex?: string[] | FHIR.CodeableConcept;
+    status?: string;
+    text?: FHIR.Narrative;
     [key: string]: any;
 };
 
@@ -49,8 +49,33 @@ export default function(props: Partial<FamilyMemberHistory_Props>) {
         resource.identifier = dt.identifier(props.identifier);
     }
 
+    if (!_.isNil(props.dataAbsentReason)) {
+        resource.dataAbsentReason = dt.concept(dt.lookupValue(
+            "http://hl7.org/fhir/ValueSet/history-absent-reason",
+            props.dataAbsentReason
+        ));
+
+        dt.ensureConceptText(resource.dataAbsentReason);
+    }
+
     if (!_.isNil(props.patient)) {
         resource.patient = dt.reference(props.patient);
+    }
+
+    if (!_.isNil(props.relationship)) {
+        resource.relationship = dt.concept(
+            dt.lookupValue("http://terminology.hl7.org/ValueSet/v3-FamilyMember", props.relationship)
+        );
+
+        dt.ensureConceptText(resource.relationship);
+    }
+
+    if (!_.isNil(props.sex)) {
+        resource.sex = dt.concept(
+            dt.lookupValue("http://hl7.org/fhir/ValueSet/administrative-gender", props.sex)
+        );
+
+        dt.ensureConceptText(resource.sex);
     }
 
     if (!_.isNil(props.born)) {
@@ -66,6 +91,16 @@ export default function(props: Partial<FamilyMemberHistory_Props>) {
     if (!_.isNil(props.deceased)) {
         delete resource.deceased;
         dt.composite(resource, "deceased", props.deceased);
+    }
+
+    if (!_.isNil(props.reasonCode)) {
+        if (!Array.isArray(props.reasonCode)) { props.reasonCode = [props.reasonCode]; }
+
+        resource.reasonCode = props.reasonCode.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/clinical-findings", x))
+        );
+
+        dt.ensureConceptText(resource.reasonCode);
     }
 
     if (!_.isNil(props.reasonReference)) {

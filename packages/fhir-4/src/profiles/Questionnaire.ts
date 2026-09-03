@@ -3,42 +3,42 @@
 // DO NOT MAKE CHANGES MANUALLY OR THEY WILL BE LOST
 // SEE THE README FILE FOR DETAILS
 
-import * as dt from "../datatypes";
 import _ from "lodash";
-import * as FHIR from "../fhir";
+import * as dt from "../datatypes";
+import type * as FHIR from "../fhir";
 type MaybeArray<T> = T | T[];
 
 export type Questionnaire_Props = {
-    id?: string;
-    meta?: FHIR.Meta;
-    implicitRules?: string;
-    language?: string;
-    text?: FHIR.Narrative;
-    contained?: any[];
-    extension?: FHIR.Extension[];
-    modifierExtension?: FHIR.Extension[];
-    url?: string;
-    identifier?: MaybeArray<string | FHIR.Identifier>;
-    version?: string;
-    name?: string;
-    title?: string;
-    derivedFrom?: any[];
-    status?: string;
-    experimental?: boolean;
-    subjectType?: string[];
-    date?: string;
-    publisher?: string;
-    contact?: FHIR.ContactDetail[];
-    description?: FHIR.markdown;
-    useContext?: FHIR.UsageContext[];
-    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
-    purpose?: FHIR.markdown;
-    copyright?: FHIR.markdown;
     approvalDate?: string;
-    lastReviewDate?: string;
-    effectivePeriod?: FHIR.Period;
     code?: FHIR.Coding[];
+    contact?: FHIR.ContactDetail[];
+    contained?: any[];
+    copyright?: string;
+    date?: string;
+    derivedFrom?: any[];
+    description?: string;
+    effectivePeriod?: FHIR.Period;
+    experimental?: boolean;
+    extension?: FHIR.Extension[];
+    id?: string;
+    identifier?: MaybeArray<string | FHIR.Identifier>;
+    implicitRules?: string;
     item?: FHIR.BackboneElement[];
+    jurisdiction?: MaybeArray<string[] | FHIR.CodeableConcept>;
+    language?: string;
+    lastReviewDate?: string;
+    meta?: FHIR.Meta;
+    modifierExtension?: FHIR.Extension[];
+    name?: string;
+    publisher?: string;
+    purpose?: string;
+    status?: string;
+    subjectType?: string[];
+    text?: FHIR.Narrative;
+    title?: string;
+    url?: string;
+    useContext?: FHIR.UsageContext[];
+    version?: string;
     [key: string]: any;
 };
 
@@ -51,6 +51,24 @@ export default function(props: Partial<Questionnaire_Props>) {
     if (!_.isNil(props.identifier)) {
         if (!Array.isArray(props.identifier)) { props.identifier = [props.identifier]; }
         resource.identifier = dt.identifier(props.identifier);
+    }
+
+    if (!_.isNil(props.jurisdiction)) {
+        if (!Array.isArray(props.jurisdiction)) { props.jurisdiction = [props.jurisdiction]; }
+
+        resource.jurisdiction = props.jurisdiction.map(
+            (x) => dt.concept(dt.lookupValue("http://hl7.org/fhir/ValueSet/jurisdiction", x))
+        );
+
+        dt.ensureConceptText(resource.jurisdiction);
+    }
+
+    if (!_.isNil(props.code)) {
+        let src = props.code;
+        if (typeof src === 'string') {
+          src = dt.lookupValue('http://hl7.org/fhir/ValueSet/questionnaire-questions', src);
+         }
+        resource.code = dt.coding(src);
     }
 
     if (!_.isNil(props.item)) {
